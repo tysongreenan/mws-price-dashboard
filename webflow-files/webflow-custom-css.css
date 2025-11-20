@@ -1,0 +1,244 @@
+/* Add this CSS to Webflow Project Settings > Custom Code > Head Code */
+
+:root {
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+}
+body {
+    font-family: var(--font-sans);
+    background-color: #f8fafc; /* Slate 50 */
+    color: #0f172a; /* Slate 900 */
+    -webkit-font-smoothing: antialiased;
+}
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.chart-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0; /* Slate 200 */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.chart-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+}
+.chart-container {
+    position: relative;
+    height: 350px;
+    width: 100%;
+}
+.chart-container-sm {
+    position: relative;
+    height: 250px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9; 
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1; 
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; 
+}
+
+/* Print/PDF Optimization Styles */
+@media print {
+    /* Remove all hover effects */
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    .chart-card:hover,
+    button:hover,
+    select:hover,
+    *:hover {
+        box-shadow: none !important;
+        transform: none !important;
+        background-color: inherit !important;
+        color: inherit !important;
+    }
+
+    /* Ensure proper page setup */
+    @page {
+        size: letter;
+        margin: 0.5in;
+    }
+
+    /* Body and layout */
+    body {
+        background: white !important;
+        color: #000 !important;
+        font-size: 10pt;
+        line-height: 1.4;
+    }
+
+    /* Navigation - make it print-friendly */
+    nav {
+        position: static !important;
+        background: white !important;
+        border-bottom: 2px solid #000 !important;
+        page-break-after: avoid;
+    }
+
+    /* Remove glass effects */
+    .glass-panel {
+        background: white !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: 1px solid #000 !important;
+    }
+
+    /* Cards - ensure they print well */
+    .chart-card {
+        background: white !important;
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+        margin-bottom: 1em;
+    }
+
+    /* Charts - ensure they render */
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+        page-break-inside: avoid;
+    }
+
+    .chart-container {
+        height: auto !important;
+        min-height: 300px;
+        page-break-inside: avoid;
+    }
+
+    .chart-container-sm {
+        height: auto !important;
+        min-height: 200px;
+    }
+
+    /* Ensure charts are visible */
+    #gapAnalysisChart,
+    #distributionChart,
+    #valueMatrixChart,
+    #pricingModelChart,
+    #locationPriceChart,
+    #torontoPriceChart,
+    #peelPriceChart,
+    #markhamPriceChart,
+    #pickeringPriceChart,
+    #niagaraPriceChart,
+    #atlanticPriceChart {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    /* Hide interactive elements */
+    button,
+    select,
+    #clear-filters,
+    input[type="checkbox"] {
+        display: none !important;
+    }
+
+    /* Hide interactive legend, show print legend */
+    #locationPriceChartLegend {
+        display: none !important;
+    }
+
+    .print-only-legend {
+        display: none !important;
+    }
+
+    @media print {
+        .print-only-legend {
+            display: block !important;
+        }
+    }
+
+    /* Table optimization */
+    table {
+        page-break-inside: auto;
+        border-collapse: collapse;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-footer-group;
+    }
+
+    /* Ensure all text is black for printing */
+    h1, h2, h3, h4, h5, h6,
+    p, span, div, td, th {
+        color: #000 !important;
+    }
+
+    /* Remove decorative elements that don't print well */
+    .absolute {
+        position: static !important;
+    }
+
+    /* Footer */
+    footer {
+        page-break-inside: avoid;
+        border-top: 1px solid #000;
+        margin-top: 2em;
+    }
+
+    /* Section breaks */
+    section {
+        page-break-inside: avoid;
+    }
+
+    /* Grid layouts - stack vertically for print */
+    .grid {
+        display: block !important;
+    }
+
+    .grid > * {
+        margin-bottom: 1em;
+    }
+
+    /* Ensure KPI cards print side by side if space allows */
+    .grid.grid-cols-1.md\:grid-cols-3 {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 1em;
+    }
+
+    /* Hide scrollbars */
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* Ensure visibility of all content */
+    * {
+        visibility: visible !important;
+    }
+
+    /* Optimize spacing */
+    .space-y-8 > * + * {
+        margin-top: 1.5em;
+    }
+}
+

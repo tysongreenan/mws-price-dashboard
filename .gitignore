@@ -8,7 +8,6 @@ yarn-error.log*
 .vercel/
 dist/
 build/
-.next/
 
 # Environment variables
 .env
@@ -21,53 +20,16 @@ build/
 *.swp
 *.swo
 *~
-.cursor/
 
 # OS
 .DS_Store
 Thumbs.db
-.DS_Store?
 
-# Packages and archives
+# Packages
 *.zip
 *.tar.gz
-*.tgz
-pricing-dashboard-package*.zip
-webflow-integration-package.zip
-
-# Documentation (not needed for deployment)
-*.md
-!README.md
-DEPLOYMENT_GUIDE.md
-DEVELOPER_NOTES.md
-UPLOAD_INSTRUCTIONS.md
-START_HERE.md
-PDF_EXPORT_GUIDE.md
-VERCEL_DEPLOYMENT.md
-PACKAGE_CHECKLIST.md
-
-# Development files
-webflow-files/
-pricing-dashboard-package*/
-create-package.sh
-query-database.js
-query-database.js.bak
-
-# Source data (embedded in HTML, not needed separately)
-waste-pricing-database.json
-
-# Research files
-Roll-Off Bin Pricing Research.md
-Bin Rental*.md
-
-# CSV templates
-*.csv
 
 # Temporary files
 *.tmp
 *.temp
-*.log
 
-# Backup files
-*.bak
-*~

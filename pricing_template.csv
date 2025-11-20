@@ -1,0 +1,43 @@
+Region,Provider Name,Pricing Model,Source URL,14yd Price,14yd Weight (Tons),20yd Price,20yd Weight (Tons),40yd Price,40yd Weight (Tons),Overage Fee ($/Ton),Fuel Surcharge (%),Notes
+Toronto,Miller Waste (Us),Commercial / Quote,,,,,Call for Quote,Call for Quote,,,Target Pricing
+Toronto,York 1,Flat Rate,https://york1.com/services/bin-rental/toronto/,379,Flat Rate,399,Flat Rate,399,Flat Rate,,,"Household waste only; Dirt/Concrete $240"
+Toronto,Gorilla Bins,Tonnage Cap,https://www.gorillabins.ca/pricing/,299,1.0,399,2.0,499,2.5,115,15,
+Toronto,Scarborough Disposal,Tonnage Cap,https://www.scarboroughdisposal.com/bin-rental-pricing/,385,1.5,440,2.0,495,2.0,,,"Dirt $600; Concrete $495"
+Toronto,GTA Bins,Tonnage Cap,https://gtabins.ca/,470,1.5,,,Call for Quote,,,120,,
+Toronto,Flat Rate Bin,Flat Rate,https://www.flatratebin.ca/our-bins/garbage-bin-rental-prices-dumpster-sizes/,450,Flat Rate,,,,,,,,
+Toronto,Mr. Bin,Commercial / Quote,https://www.mrbininc.com/bin-rental,500,,,,,Call for Quote,,,,"Haul + Disposal for comm."
+Mississauga,Miller Waste (Us),Commercial / Quote,,,,,Call for Quote,Call for Quote,,,Target Pricing
+Mississauga,York 1,Flat Rate,https://york1.com/services/bin-rental/mississauga/,379,Flat Rate,399,Flat Rate,399,Flat Rate,,,
+Mississauga,Gorilla Bins,Tonnage Cap,https://www.gorillabins.ca/service-areas/dumpster-bin-rental-mississauga/,299,1.0,399,1.0,499,1.0,115,15,
+Mississauga,Bin There Dump That,Premium,https://www.bintheredumpthat.com/brampton-bin-rentals/bin-rates-and-sizes/,350,,,380+,,,,,,Quote only; Residential Friendly
+Brampton,Miller Waste (Us),Commercial / Quote,,,,,Call for Quote,Call for Quote,,,Target Pricing
+Brampton,York 1,Flat Rate,https://york1.com/services/bin-rental/brampton/,379,Flat Rate,399,Flat Rate,399,Flat Rate,,,
+Brampton,Mr. Waste,Flat Rate,https://www.mrwaste.ca/google-bin-rental.php,,429,Flat Rate,,,,,
+Brampton,Essential Disposal,Rental + Disposal,https://www.essentialdisposal.com/dependable-bin-rental-services-in-brampton-at-essential-disposal-services/,175,,,,,,,,,"Avg Range 150-195"
+Brampton,Waste Pro,Rental + Disposal,https://wastepro.ca/rent-bin/mixed-waste-per-ton-40-cubic-yard-bin/,,,,,220,0,130,,"Commercial focus"
+Markham,Miller Waste (Us),Commercial / Quote,,,,,Call for Quote,Call for Quote,,,Target Pricing
+Markham,York 1,Flat Rate,https://york1.com/services/bin-rental/markham/,379,Flat Rate,399,Flat Rate,399,Flat Rate,,,
+Markham,Scarborough Disposal,Tonnage Cap,https://www.scarboroughdisposal.com/service-areas/bin-rentals-markham/,,,440,2.0,,,,,
+Pickering,Miller Waste (Us),Commercial / Quote,https://millerwaste.ca/shop/,,,,Call for Quote,Call for Quote,,,Target Pricing
+Pickering,Durham Topsoil,Premium,https://durhamtopsoil.com/bin-rental-pricing,550,2.0,590,2.0,640,2.0,,10,"High deposit req."
+Pickering,Scarborough Disposal,Tonnage Cap,https://www.scarboroughdisposal.com/service-areas/bin-rentals-pickering/,385,1.5,440,2.0,495,2.0,,,
+Pickering,186 Need-A-Bin,Tonnage Cap,https://www.186needabin.com/dumpster-rentals/bin-rental-pickering/,299,1.0,,,,,,,,
+Pickering,Bin Affordable,Tonnage Cap,https://www.binaffordable.ca/prices.php,,,,,,,,,18,"Fuel surcharge varies"
+Niagara,Miller Waste (Us),Commercial / Quote,,,,,Call for Quote,Call for Quote,,,Target Pricing
+Niagara,Discount Bin Services (Area 3),Zone Pricing,https://discountbinservices.com/garbage-bin-rental/,310,,320,1.0,,,120,,"Area 3 (Falls/St. Cath)"
+Niagara,Discount Bin Services (Area 1/2),Zone Pricing,https://discountbinservices.com/garbage-bin-rental/,299,,325,1.5,,,,,,"Area 1/2 (Hamilton/Grimsby)"
+Niagara,York 1,Flat Rate,https://york1.com/services/bin-rental/st-catharines/,399,Flat Rate,399,Flat Rate,399,Flat Rate,,,
+Niagara,True North Dumpsters,Tonnage Cap,https://truenorthdumpsters.ca/niagara-dumpster-rentals/,360,1.0,450,2.0,575,3.5,,,
+Niagara,Mini Binz,Daily Rates,https://www.minibinz.ca/dumpster-rental-niagara-falls-on,,,,,Call for Quote,,,130,,"$20/day extension"
+Niagara,Ken's Salvage,All-Inclusive,https://kenssalvage.com/trash-bins-dumpsters/,,,,,Call for Quote,,,,,"All-in pricing model"
+Niagara,Cotton Inc.,Commercial,https://cottoninc.ca/bin-rentals/,,,,,Call for Quote,,,,,"Lugger bins available"
+Truro,Miller Waste (Us),All-Inclusive,https://millerwaste.ca/service-locations/nova-scotia/truro/,250,Scale Rate,250,Scale Rate,250,Scale Rate,,,
+Truro,Silver Bullet Bins,Haul + Tipping,https://silverbulletbins.wixsite.com/silver-bullet-bins/dumpster-pricing,250,0,250,0,,,,,
+Truro,VCS Rolloffs,Quote,https://vcsrolloffs.ca/,,,,,Call for Quote,,,,,
+Amherst,Miller Waste (Us),Commercial / Quote,,,,,Call for Quote,Call for Quote,,,Target Pricing
+Amherst,Nova 4 Enviro,Daily/Weekly,https://www.nova4enviro.ca/,,,Call for Quote,,,,,Daily rates available
+Amherst,Fero Waste,Commercial,https://www.municipalenvironmental.com/fero/service/dumpster-services,,,,,Call for Quote,,,,"Commercial focus"
+Halifax,Dumpsters R Us,Haul + Tipping,https://halifaxdumpsters.com/,400,0,400,0,400,0,,,Base rate only
+Halifax,1-888-JunkBin,Haul + Tipping,https://1888junkbin.com/,250,0,300,0,,,,,"$600 Deposit"
+Halifax,EZ Junk Removal,Bundled,https://ezjunkremoval.ca/how-much-does-it-cost-to-rent-a-dumpster-in-halifax/,,,350,Bundled,,,,,
+Halifax,Bin There Dump That,Premium,https://www.bintheredumpthat.com/halifax-bin-rentals/bin-sizes/,350,,,,,,,,,"Res. Friendly"

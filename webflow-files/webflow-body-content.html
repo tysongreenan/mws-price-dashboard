@@ -1,0 +1,394 @@
+
+
+    <!-- Navigation / Header -->
+    <nav class="sticky top-0 z-50 glass-panel border-b border-slate-200/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0">
+                        <img src="MWS_Main-Logo.svg" alt="Miller Waste Systems" class="h-10 w-auto" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-slate-900">Market Intelligence</h1>
+                        <p class="text-xs text-slate-500 font-medium">Eastern Canada Waste Logistics • 2024-2025</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-4">
+                    <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live Data
+                    </span>
+                    <button id="export-report-btn" onclick="prepareForPrint()" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                        Export Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Executive Summary / KPIs -->
+        <section>
+            <div class="flex items-baseline justify-between mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Market Overview</h2>
+                <span class="text-sm text-slate-500">Avg. Base Rate (All Regions)</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- KPI Card 1 -->
+                <div class="chart-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-sm font-medium text-slate-500 uppercase tracking-wider">14 Yard Bin</h3>
+                        </div>
+                        <div class="flex justify-between items-end mb-2">
+                            <div>
+                                <div class="text-xs text-slate-400 mb-1">Market Average</div>
+                                <p id="avg14" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-brand-400 mb-1">Miller Waste</div>
+                                <p id="miller14" class="text-2xl font-bold text-brand-600 tracking-tight">--</p>
+                            </div>
+                        </div>
+                        <div id="diff14" class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-slate-100 text-slate-500">
+                            -- difference
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Card 2 -->
+                <div class="chart-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-sm font-medium text-slate-500 uppercase tracking-wider">20 Yard Bin</h3>
+                        </div>
+                        <div class="flex justify-between items-end mb-2">
+                            <div>
+                                <div class="text-xs text-slate-400 mb-1">Market Average</div>
+                                <p id="avg20" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-brand-400 mb-1">Miller Waste</div>
+                                <p id="miller20" class="text-2xl font-bold text-brand-600 tracking-tight">--</p>
+                            </div>
+                        </div>
+                        <div id="diff20" class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-slate-100 text-slate-500">
+                            -- difference
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Card 3 -->
+                <div class="chart-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-violet-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-sm font-medium text-slate-500 uppercase tracking-wider">40 Yard Bin</h3>
+                        </div>
+                        <div class="flex justify-between items-end mb-2">
+                            <div>
+                                <div class="text-xs text-slate-400 mb-1">Market Average</div>
+                                <p id="avg40" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-brand-400 mb-1">Miller Waste</div>
+                                <p id="miller40" class="text-2xl font-bold text-brand-600 tracking-tight">--</p>
+                            </div>
+                        </div>
+                        <div id="diff40" class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-slate-100 text-slate-500">
+                            -- difference
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategic Decision Support: Price Gap & Distribution -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Price Gap Analysis -->
+            <div class="chart-card p-6 flex flex-col">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-slate-900">Miller vs Market Average Price</h2>
+                    <p class="text-sm text-slate-500 mb-2">How Miller's 14-yard bin price compares to the regional market average.</p>
+                    <div class="flex items-center gap-4 text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded bg-emerald-500"></span>
+                            <span class="text-slate-600"><strong>Green bars:</strong> Miller is cheaper (competitive advantage)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded bg-rose-500"></span>
+                            <span class="text-slate-600"><strong>Red bars:</strong> Miller charges more (price premium)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container flex-grow">
+                    <canvas id="gapAnalysisChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Competitor Distribution -->
+            <div class="chart-card p-6 flex flex-col">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-slate-900">Price Distribution by Bin Size</h2>
+                    <p class="text-sm text-slate-500 mb-2">All competitor prices plotted by bin size. Shows where Miller sits compared to the market.</p>
+                    <div class="flex items-center gap-4 text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+                            <span class="text-slate-600">Competitors</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                            <span class="text-slate-600">Miller Waste</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container flex-grow">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategic Value Matrix -->
+        <section class="chart-card p-6">
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Value Matrix: Price vs. Included Weight</h2>
+                    <p class="text-sm text-slate-500">Strategic positioning of 14-yard bin providers. <br>High Included Weight + Low Price = <span class="text-emerald-600 font-bold">Best Value</span>.</p>
+                </div>
+                <div class="text-xs text-right text-slate-400">
+                    <div class="flex items-center gap-2 justify-end mb-1"><span class="w-3 h-3 rounded-full bg-emerald-500 opacity-80"></span> Best Value (Q2)</div>
+                    <div class="flex items-center gap-2 justify-end"><span class="w-3 h-3 rounded-full bg-slate-400 opacity-50"></span> Standard Market</div>
+                </div>
+            </div>
+            <div class="chart-container" style="height: 450px;">
+                <canvas id="valueMatrixChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Pricing Models: Pros & Cons -->
+        <section class="chart-card p-6">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-slate-900">Most Popular Pricing Model by Region</h2>
+                <p class="text-sm text-slate-500">Dominant pricing strategy in each market region.</p>
+            </div>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="pricingModelChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Main Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Location Chart (Spans 2 cols) -->
+            <div class="lg:col-span-2 chart-card p-6 flex flex-col">
+                <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Regional Price Analysis</h2>
+                        <p class="text-sm text-slate-500">Average base rate variance by municipality.</p>
+                    </div>
+                    <div id="locationPriceChartLegend" class="flex flex-wrap gap-4">
+                        <!-- Legend items injected by JS -->
+                    </div>
+                    <!-- Print-only legend -->
+                    <div class="print-only-legend hidden print:block text-xs text-slate-600 mt-2 space-y-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="font-semibold mb-2 text-slate-900">All Bin Sizes Shown:</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #94a3b8; border: 1px solid #64748b;"></span>
+                                <span class="text-slate-700">14yd Market Avg</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #895431; border: 1px solid #6e4327;"></span>
+                                <span class="text-slate-700">14yd Miller</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #64748b; border: 1px solid #475569;"></span>
+                                <span class="text-slate-700">20yd Market Avg</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #6e4327; border: 1px solid #3d2516;"></span>
+                                <span class="text-slate-700">20yd Miller</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #475569; border: 1px solid #334155;"></span>
+                                <span class="text-slate-700">40yd Market Avg</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #3d2516; border: 1px solid #1e293b;"></span>
+                                <span class="text-slate-700">40yd Miller</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container flex-grow">
+                    <canvas id="locationPriceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Contributors List (Spans 1 col) -->
+            <div class="chart-card p-6 flex flex-col">
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold text-slate-900">Market Contributors</h2>
+                    <p class="text-sm text-slate-500">Companies included in market averages.</p>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto pr-2 max-h-[350px]" id="contributorsList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Deep Dives Section -->
+        <div class="space-y-8">
+            <!-- Toronto & Peel Deep Dive -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                            Toronto
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Downtown & Metro Core.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="torontoPriceChart"></canvas>
+                    </div>
+                </section>
+                
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                            Peel Region (Mississauga/Brampton)
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Suburban & Industrial Hubs.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="peelPriceChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Markham & Pickering -->
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            Markham
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">East GTA Competitive Set.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="markhamPriceChart"></canvas>
+                    </div>
+                </section>
+                
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                            Pickering
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Durham Region Entry Point.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="pickeringPriceChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Niagara & Atlantic -->
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            Niagara Region
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">St. Catharines & Falls.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="niagaraPriceChart"></canvas>
+                    </div>
+                </section>
+                
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            Atlantic Region
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Halifax, Truro, Amherst.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="atlanticPriceChart"></canvas>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <section class="chart-card overflow-hidden">
+            <div class="p-6 border-b border-slate-200 bg-slate-50/50">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Detailed Competitor Data</h2>
+                        <p class="text-sm text-slate-500">Raw pricing data and fee structures extracted from provider listings.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <select id="filter-region" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">All Regions</option>
+                        </select>
+                        <select id="filter-material" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="mixedWaste">Mixed Waste</option>
+                            <option value="mixedGarbage">Mixed Garbage</option>
+                            <option value="concreteOnly">Concrete Only</option>
+                            <option value="concrete">Concrete</option>
+                        </select>
+                        <select id="filter-pricing-model" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">All Pricing Models</option>
+                            <option value="Flat Rate">Flat Rate</option>
+                            <option value="Tonnage Cap">Tonnage Cap</option>
+                            <option value="Haul + Tipping">Haul + Tipping</option>
+                            <option value="Haul + Delivery">Haul + Delivery</option>
+                            <option value="Rental + Disposal">Rental + Disposal</option>
+                            <option value="All-Inclusive">All-Inclusive</option>
+                            <option value="Premium">Premium</option>
+                        </select>
+                        <button id="clear-filters" class="text-sm px-3 py-1.5 text-slate-600 hover:text-slate-900 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4">Location</th>
+                            <th class="px-6 py-4">Provider</th>
+                            <th class="px-6 py-4">14 Yard</th>
+                            <th class="px-6 py-4">20 Yard</th>
+                            <th class="px-6 py-4">40 Yard</th>
+                            <th class="px-6 py-4">Fee Structure</th>
+                            <th class="px-6 py-4">Notes</th>
+                            <th class="px-6 py-4">Source</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body" class="divide-y divide-slate-100 bg-white">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto px-6 py-12 text-center text-slate-400 text-sm">
+        <p>© 2024-2025 Waste Pricing Logistics Analysis. All data sourced from public listings.</p>
+    </footer>
+
