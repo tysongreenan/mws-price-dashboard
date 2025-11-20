@@ -1,0 +1,3288 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Intelligence | Bin Rental Pricing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+        body {
+            font-family: var(--font-sans);
+            background-color: #f8fafc; /* Slate 50 */
+            color: #0f172a; /* Slate 900 */
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0; /* Slate 200 */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chart-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+        }
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+        .chart-container-sm {
+            position: relative;
+            height: 250px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Print/PDF Optimization Styles */
+        @media print {
+            /* Remove all hover effects */
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+            
+            .chart-card:hover,
+            button:hover,
+            select:hover,
+            *:hover {
+                box-shadow: none !important;
+                transform: none !important;
+                background-color: inherit !important;
+                color: inherit !important;
+            }
+
+            /* Ensure proper page setup */
+            @page {
+                size: letter;
+                margin: 0.5in;
+            }
+
+            /* Body and layout */
+            body {
+                background: white !important;
+                color: #000 !important;
+                font-size: 10pt;
+                line-height: 1.4;
+            }
+
+            /* Navigation - make it print-friendly */
+            nav {
+                position: static !important;
+                background: white !important;
+                border-bottom: 2px solid #000 !important;
+                page-break-after: avoid;
+            }
+
+            /* Logo in print */
+            nav img {
+                max-height: 40px !important;
+                width: auto !important;
+            }
+
+            /* Remove glass effects */
+            .glass-panel {
+                background: white !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                border: 1px solid #000 !important;
+            }
+
+            /* Cards - ensure they print well */
+            .chart-card {
+                background: white !important;
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+                margin-bottom: 1em;
+            }
+
+            /* Charts - ensure they render */
+            canvas {
+                max-width: 100% !important;
+                height: auto !important;
+                page-break-inside: avoid;
+            }
+
+            .chart-container {
+                height: auto !important;
+                min-height: 300px;
+                page-break-inside: avoid;
+            }
+
+            .chart-container-sm {
+                height: auto !important;
+                min-height: 200px;
+            }
+
+            /* Ensure charts are visible */
+            #gapAnalysisChart,
+            #distributionChart,
+            #valueMatrixChart,
+            #pricingModelChart,
+            #locationPriceChart,
+            #torontoPriceChart,
+            #peelPriceChart,
+            #markhamPriceChart,
+            #pickeringPriceChart,
+            #niagaraPriceChart,
+            #atlanticPriceChart {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            /* Hide interactive elements */
+            button,
+            select,
+            #clear-filters,
+            input[type="checkbox"] {
+                display: none !important;
+            }
+
+            /* Hide interactive legend, show print legend */
+            #locationPriceChartLegend {
+                display: none !important;
+            }
+
+            .print-only-legend {
+                display: none !important;
+            }
+
+            @media print {
+                .print-only-legend {
+                    display: block !important;
+                }
+            }
+
+            /* Table optimization */
+            table {
+                page-break-inside: auto;
+                border-collapse: collapse;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tfoot {
+                display: table-footer-group;
+            }
+
+            /* Ensure all text is black for printing */
+            h1, h2, h3, h4, h5, h6,
+            p, span, div, td, th {
+                color: #000 !important;
+            }
+
+            /* Remove decorative elements that don't print well */
+            .absolute {
+                position: static !important;
+            }
+
+            /* Footer */
+            footer {
+                page-break-inside: avoid;
+                border-top: 1px solid #000;
+                margin-top: 2em;
+            }
+
+            /* Section breaks */
+            section {
+                page-break-inside: avoid;
+            }
+
+            /* Grid layouts - stack vertically for print */
+            .grid {
+                display: block !important;
+            }
+
+            .grid > * {
+                margin-bottom: 1em;
+            }
+
+            /* Ensure KPI cards print side by side if space allows */
+            .grid.grid-cols-1.md\:grid-cols-3 {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 1em;
+            }
+
+            /* Hide scrollbars */
+            ::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            /* Ensure visibility of all content */
+            * {
+                visibility: visible !important;
+            }
+
+            /* Optimize spacing */
+            .space-y-8 > * + * {
+                margin-top: 1.5em;
+            }
+
+            /* Print header/footer */
+            @page {
+                @top-center {
+                    content: "Market Intelligence | Bin Rental Pricing";
+                    font-size: 9pt;
+                    color: #666;
+                }
+                @bottom-right {
+                    content: "Page " counter(page);
+                    font-size: 9pt;
+                    color: #666;
+                }
+            }
+        }
+
+        /* Pre-print optimization - ensure charts are ready */
+        @media print {
+            /* Force chart re-render before print */
+            body::before {
+                content: '';
+                display: none;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f8f5f2',
+                            100: '#eee8e3',
+                            500: '#895431', // Miller Waste Primary Brown
+                            600: '#6e4327',
+                            900: '#3d2516',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 selection:bg-brand-100 selection:text-brand-900">
+
+    <!-- Navigation / Header -->
+    <nav class="sticky top-0 z-50 glass-panel border-b border-slate-200/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0">
+                        <img src="MWS_Main-Logo.svg" alt="Miller Waste Systems" class="h-10 w-auto" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-slate-900">Market Intelligence</h1>
+                        <p class="text-xs text-slate-500 font-medium">Eastern Canada Waste Logistics • 2024-2025</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-4">
+                    <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live Data
+                    </span>
+                    <button id="export-report-btn" onclick="prepareForPrint()" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                        Export Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Executive Summary / KPIs -->
+        <section>
+            <div class="flex items-baseline justify-between mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Market Overview</h2>
+                <span class="text-sm text-slate-500">Avg. Base Rate (All Regions)</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- KPI Card 1 -->
+                <div class="chart-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-sm font-medium text-slate-500 uppercase tracking-wider">14 Yard Bin</h3>
+                        </div>
+                        <div class="flex justify-between items-end mb-2">
+                            <div>
+                                <div class="text-xs text-slate-400 mb-1">Market Average</div>
+                                <p id="avg14" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-brand-400 mb-1">Miller Waste</div>
+                                <p id="miller14" class="text-2xl font-bold text-brand-600 tracking-tight">--</p>
+                            </div>
+                        </div>
+                        <div id="diff14" class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-slate-100 text-slate-500">
+                            -- difference
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Card 2 -->
+                <div class="chart-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-sm font-medium text-slate-500 uppercase tracking-wider">20 Yard Bin</h3>
+                        </div>
+                        <div class="flex justify-between items-end mb-2">
+                            <div>
+                                <div class="text-xs text-slate-400 mb-1">Market Average</div>
+                                <p id="avg20" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-brand-400 mb-1">Miller Waste</div>
+                                <p id="miller20" class="text-2xl font-bold text-brand-600 tracking-tight">--</p>
+                            </div>
+                        </div>
+                        <div id="diff20" class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-slate-100 text-slate-500">
+                            -- difference
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Card 3 -->
+                <div class="chart-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-violet-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-sm font-medium text-slate-500 uppercase tracking-wider">40 Yard Bin</h3>
+                        </div>
+                        <div class="flex justify-between items-end mb-2">
+                            <div>
+                                <div class="text-xs text-slate-400 mb-1">Market Average</div>
+                                <p id="avg40" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-brand-400 mb-1">Miller Waste</div>
+                                <p id="miller40" class="text-2xl font-bold text-brand-600 tracking-tight">--</p>
+                            </div>
+                        </div>
+                        <div id="diff40" class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-slate-100 text-slate-500">
+                            -- difference
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategic Decision Support: Price Gap & Distribution -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Price Gap Analysis -->
+            <div class="chart-card p-6 flex flex-col">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-slate-900">Miller vs Market Average Price</h2>
+                    <p class="text-sm text-slate-500 mb-2">How Miller's 14-yard bin price compares to the regional market average.</p>
+                    <div class="flex items-center gap-4 text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded bg-emerald-500"></span>
+                            <span class="text-slate-600"><strong>Green bars:</strong> Miller is cheaper (competitive advantage)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded bg-rose-500"></span>
+                            <span class="text-slate-600"><strong>Red bars:</strong> Miller charges more (price premium)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container flex-grow">
+                    <canvas id="gapAnalysisChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Competitor Distribution -->
+            <div class="chart-card p-6 flex flex-col">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-slate-900">Price Distribution by Bin Size</h2>
+                    <p class="text-sm text-slate-500 mb-2">All competitor prices plotted by bin size. Shows where Miller sits compared to the market.</p>
+                    <div class="flex items-center gap-4 text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+                            <span class="text-slate-600">Competitors</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                            <span class="text-slate-600">Miller Waste</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container flex-grow">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategic Value Matrix -->
+        <section class="chart-card p-6">
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Value Matrix: Price vs. Included Weight</h2>
+                    <p class="text-sm text-slate-500">Strategic positioning of 14-yard bin providers. <br>High Included Weight + Low Price = <span class="text-emerald-600 font-bold">Best Value</span>.</p>
+                </div>
+                <div class="text-xs text-right text-slate-400">
+                    <div class="flex items-center gap-2 justify-end mb-1"><span class="w-3 h-3 rounded-full bg-emerald-500 opacity-80"></span> Best Value (Q2)</div>
+                    <div class="flex items-center gap-2 justify-end"><span class="w-3 h-3 rounded-full bg-slate-400 opacity-50"></span> Standard Market</div>
+                </div>
+            </div>
+            <div class="chart-container" style="height: 450px;">
+                <canvas id="valueMatrixChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Pricing Models: Pros & Cons -->
+        <section class="chart-card p-6">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-slate-900">Most Popular Pricing Model by Region</h2>
+                <p class="text-sm text-slate-500">Dominant pricing strategy in each market region.</p>
+            </div>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="pricingModelChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Main Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Location Chart (Spans 2 cols) -->
+            <div class="lg:col-span-2 chart-card p-6 flex flex-col">
+                <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Regional Price Analysis</h2>
+                        <p class="text-sm text-slate-500">Average base rate variance by municipality.</p>
+                    </div>
+                    <div id="locationPriceChartLegend" class="flex flex-wrap gap-4">
+                        <!-- Legend items injected by JS -->
+                    </div>
+                    <!-- Print-only legend -->
+                    <div class="print-only-legend hidden print:block text-xs text-slate-600 mt-2 space-y-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="font-semibold mb-2 text-slate-900">All Bin Sizes Shown:</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #94a3b8; border: 1px solid #64748b;"></span>
+                                <span class="text-slate-700">14yd Market Avg</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #895431; border: 1px solid #6e4327;"></span>
+                                <span class="text-slate-700">14yd Miller</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #64748b; border: 1px solid #475569;"></span>
+                                <span class="text-slate-700">20yd Market Avg</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #6e4327; border: 1px solid #3d2516;"></span>
+                                <span class="text-slate-700">20yd Miller</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #475569; border: 1px solid #334155;"></span>
+                                <span class="text-slate-700">40yd Market Avg</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-sm" style="background-color: #3d2516; border: 1px solid #1e293b;"></span>
+                                <span class="text-slate-700">40yd Miller</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container flex-grow">
+                    <canvas id="locationPriceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Contributors List (Spans 1 col) -->
+            <div class="chart-card p-6 flex flex-col">
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold text-slate-900">Market Contributors</h2>
+                    <p class="text-sm text-slate-500">Companies included in market averages.</p>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto pr-2 max-h-[350px]" id="contributorsList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Deep Dives Section -->
+        <div class="space-y-8">
+            <!-- Toronto & Peel Deep Dive -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                            Toronto
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Downtown & Metro Core.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="torontoPriceChart"></canvas>
+                    </div>
+                </section>
+                
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                            Peel Region (Mississauga/Brampton)
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Suburban & Industrial Hubs.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="peelPriceChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Markham & Pickering -->
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            Markham
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">East GTA Competitive Set.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="markhamPriceChart"></canvas>
+                    </div>
+                </section>
+                
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                            Pickering
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Durham Region Entry Point.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="pickeringPriceChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Niagara & Atlantic -->
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            Niagara Region
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">St. Catharines & Falls.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="niagaraPriceChart"></canvas>
+                    </div>
+                </section>
+                
+                <section class="chart-card p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            Atlantic Region
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Halifax, Truro, Amherst.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="atlanticPriceChart"></canvas>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <section class="chart-card overflow-hidden">
+            <div class="p-6 border-b border-slate-200 bg-slate-50/50">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Detailed Competitor Data</h2>
+                        <p class="text-sm text-slate-500">Raw pricing data and fee structures extracted from provider listings.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <select id="filter-region" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">All Regions</option>
+                        </select>
+                        <select id="filter-material" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="mixedWaste">Mixed Waste</option>
+                            <option value="mixedGarbage">Mixed Garbage</option>
+                            <option value="concreteOnly">Concrete Only</option>
+                            <option value="concrete">Concrete</option>
+                        </select>
+                        <select id="filter-pricing-model" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">All Pricing Models</option>
+                            <option value="Flat Rate">Flat Rate</option>
+                            <option value="Tonnage Cap">Tonnage Cap</option>
+                            <option value="Haul + Tipping">Haul + Tipping</option>
+                            <option value="Haul + Delivery">Haul + Delivery</option>
+                            <option value="Rental + Disposal">Rental + Disposal</option>
+                            <option value="All-Inclusive">All-Inclusive</option>
+                            <option value="Premium">Premium</option>
+                        </select>
+                        <button id="clear-filters" class="text-sm px-3 py-1.5 text-slate-600 hover:text-slate-900 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4">Location</th>
+                            <th class="px-6 py-4">Provider</th>
+                            <th class="px-6 py-4">14 Yard</th>
+                            <th class="px-6 py-4">20 Yard</th>
+                            <th class="px-6 py-4">40 Yard</th>
+                            <th class="px-6 py-4">Fee Structure</th>
+                            <th class="px-6 py-4">Notes</th>
+                            <th class="px-6 py-4">Source</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body" class="divide-y divide-slate-100 bg-white">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto px-6 py-12 text-center text-slate-400 text-sm">
+        <p>© 2024-2025 Waste Pricing Logistics Analysis. All data sourced from public listings.</p>
+    </footer>
+
+    <script>
+        // Embedded database data (Minified logic for cleaner file)
+        const databaseData = {
+  "metadata": {
+    "title": "Eastern Canada Waste Management Pricing Database",
+    "version": "2025-R1",
+    "lastUpdated": "November 2025",
+    "regions": ["Toronto", "Mississauga", "Brampton", "Markham", "Pickering", "Niagara", "Halifax", "Truro", "Amherst", "Milton", "Newmarket", "North York", "Richmond Hill", "Vaughan", "Oshawa", "Whitby", "Ajax"],
+    "binSizes": [4, 6, 10, 12, 14, 15, 20, 30, 40],
+    "description": "Comprehensive pricing data for roll-off dumpster and waste container rentals across Eastern Canada, including independent operators and national haulers."
+  },
+  "providers": [
+    {
+      "id": "miller-waste-toronto",
+      "name": "Miller Waste (Us)",
+      "region": "Toronto",
+      "serviceFocus": "Markham Depot",
+      "pricingModel": "Commercial / Quote",
+      "sourceUrl": "https://millerwaste.ca/pre-checkout/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 779.25,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        },
+        "20yd": {
+          "basePrice": 785.25,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        },
+        "40yd": {
+          "basePrice": 892.52,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        }
+      },
+      "fees": "5 business days included, then $25 per extra business day",
+      "notes": "Served by Markham depot"
+    },
+    {
+      "id": "miller-waste-mississauga",
+      "name": "Miller Waste (Us)",
+      "region": "Mississauga",
+      "serviceFocus": "Brampton Depot",
+      "pricingModel": "Commercial / Quote",
+      "sourceUrl": "https://millerwaste.ca/pre-checkout/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 843.82,
+          "includedWeight": "Variable",
+          "notes": "Closest tier is 25.9 km (no 10.9 km coverage)"
+        },
+        "20yd": {
+          "basePrice": 843.82,
+          "includedWeight": "Variable",
+          "notes": "Closest tier is 25.9 km (no 10.9 km coverage)"
+        },
+        "40yd": {
+          "basePrice": 956.52,
+          "includedWeight": "Variable",
+          "notes": "Closest tier is 25.9 km (no 10.9 km coverage)"
+        }
+      },
+      "fees": "5 business days included, then $25 per extra business day",
+      "notes": "Serviced from Brampton"
+    },
+    {
+      "id": "miller-waste-markham",
+      "name": "Miller Waste (Us)",
+      "region": "Markham",
+      "serviceFocus": "Markham Depot",
+      "pricingModel": "Commercial / Quote",
+      "sourceUrl": "https://millerwaste.ca/pre-checkout/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 779.25,
+          "includedWeight": "Variable",
+          "notes": "Same as Toronto (10.9 km tier)"
+        },
+        "20yd": {
+          "basePrice": 785.25,
+          "includedWeight": "Variable",
+          "notes": "Same as Toronto (10.9 km tier)"
+        },
+        "40yd": {
+          "basePrice": 892.52,
+          "includedWeight": "Variable",
+          "notes": "Same as Toronto (10.9 km tier)"
+        }
+      },
+      "fees": "5 business days included, then $25 per extra business day",
+      "notes": "Local depot pricing"
+    },
+    {
+      "id": "miller-waste-brampton",
+      "name": "Miller Waste (Us)",
+      "region": "Brampton",
+      "serviceFocus": "Brampton Depot",
+      "pricingModel": "Commercial / Quote",
+      "sourceUrl": "https://millerwaste.ca/pre-checkout/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 790.86,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        },
+        "20yd": {
+          "basePrice": 790.86,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        },
+        "40yd": {
+          "basePrice": 903.56,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        }
+      },
+      "fees": "5 business days included, then $25 per extra business day",
+      "notes": "Local depot pricing"
+    },
+    {
+      "id": "miller-waste-pickering",
+      "name": "Miller Waste (Us)",
+      "region": "Pickering",
+      "serviceFocus": "Pickering Depot",
+      "pricingModel": "Commercial / Quote",
+      "sourceUrl": "https://millerwaste.ca/pre-checkout/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 785.00,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        },
+        "20yd": {
+          "basePrice": 785.00,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        },
+        "40yd": {
+          "basePrice": 898.27,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        }
+      },
+      "fees": "5 business days included, then $25 per extra business day",
+      "notes": "Local depot pricing"
+    },
+    {
+      "id": "miller-waste-niagara",
+      "name": "Miller Waste (Us)",
+      "region": "Niagara",
+      "serviceFocus": "Niagara Depot",
+      "pricingModel": "Commercial / Quote",
+      "sourceUrl": "https://millerwaste.ca/pre-checkout/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 793.35,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        },
+        "20yd": {
+          "basePrice": 793.35,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        },
+        "40yd": {
+          "basePrice": 906.62,
+          "includedWeight": "Variable",
+          "notes": "Uses 10.9 km pricing tier"
+        }
+      },
+      "fees": "5 business days included, then $25 per extra business day",
+      "notes": "Local depot pricing"
+    },
+    {
+      "id": "miller-waste-halifax",
+      "name": "Miller Waste (Us)",
+      "region": "Halifax",
+      "serviceFocus": "Halifax Depot",
+      "pricingModel": "Commercial / Quote",
+      "sourceUrl": "https://millerwaste.ca/pre-checkout/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 1214.29,
+          "includedWeight": 2.0,
+          "unit": "tonnes",
+          "notes": "Atlantic pricing rules differ from Ontario"
+        },
+        "20yd": {
+          "basePrice": 1214.29,
+          "includedWeight": 2.0,
+          "unit": "tonnes",
+          "notes": "Atlantic pricing rules differ from Ontario"
+        },
+        "40yd": {
+          "basePrice": 1369.54,
+          "includedWeight": 2.0,
+          "unit": "tonnes",
+          "notes": "Atlantic pricing rules differ from Ontario"
+        }
+      },
+      "fees": "7 business days, 2-tonne limit, then $25 per extra business day",
+      "notes": "Higher base rate reflects regional logistics"
+    },
+    {
+      "id": "miller-waste-truro",
+      "name": "Miller Waste (Us)",
+      "region": "Truro",
+      "serviceFocus": "Truro Depot",
+      "pricingModel": "Commercial / Quote",
+      "sourceUrl": "https://millerwaste.ca/pre-checkout/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 1182.55,
+          "includedWeight": 2.0,
+          "unit": "tonnes",
+          "notes": "Atlantic pricing rules"
+        },
+        "20yd": {
+          "basePrice": 1182.55,
+          "includedWeight": 2.0,
+          "unit": "tonnes",
+          "notes": "Atlantic pricing rules"
+        },
+        "40yd": {
+          "basePrice": 1337.80,
+          "includedWeight": 2.0,
+          "unit": "tonnes",
+          "notes": "Atlantic pricing rules"
+        }
+      },
+      "fees": "7 business days, 2-tonne limit, then $25 per extra business day",
+      "notes": "Regional hub pricing"
+    },
+    {
+      "id": "city-waste-services",
+      "name": "City Waste Services",
+      "region": "Toronto",
+      "serviceFocus": "Toronto & GTA",
+      "pricingModel": "Rental + Disposal",
+      "sourceUrl": "https://citywasteservices.ca/bin-types-and-sizes/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 175.00,
+          "includedWeight": 0,
+          "unit": "tonnes",
+          "notes": "Pay per tonne disposal"
+        },
+        "20yd": {
+          "basePrice": 185.00,
+          "includedWeight": 0,
+          "unit": "tonnes",
+          "notes": "Prohibited for clean fill"
+        },
+        "40yd": {
+          "basePrice": 205.00,
+          "includedWeight": 0,
+          "unit": "tonnes"
+        }
+      },
+      "disposalFee": 115,
+      "disposalUnit": "per tonne",
+      "notes": "Transparent 'Cost-Plus' model: Low base rate + $115/tonne disposal. Ideal for light loads (e.g., household junk), potentially expensive for heavy renovation debris."
+    },
+    {
+      "id": "cube-bin-rentals",
+      "name": "Cube Bin Rentals",
+      "region": "Toronto",
+      "serviceFocus": "Residential",
+      "pricingModel": "Flat Rate + High Overage",
+      "sourceUrl": "https://cubebinrentals.com/",
+      "pricing": {
+        "4yd": { "basePrice": 330, "includedWeight": 1.0, "unit": "tonne" },
+        "14yd": { "basePrice": 330, "includedWeight": 1.0, "unit": "tonne" },
+        "20yd": { "basePrice": 330, "includedWeight": 1.0, "unit": "tonne" }
+      },
+      "overageFee": 126,
+      "overageUnit": "per tonne",
+      "notes": "Radical simplification: $330 flat fee for any size bin (4-20yd). Relies on high overage fee ($126/tonne) and small bin users subsidizing large bin users."
+    },
+    {
+      "id": "we-haul",
+      "name": "We-Haul",
+      "region": "Toronto",
+      "serviceFocus": "Residential",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://we-haul.ca/services/bin-rentals-toronto-gta/",
+      "pricing": {
+        "14yd": { "basePrice": 425, "notes": "Standard residential rate" },
+        "20yd": { "basePrice": 525, "notes": "Standard residential rate" }
+      },
+      "notes": "Traditional cost-plus model targeting homeowners."
+    },
+    {
+      "id": "gorilla-bins",
+      "name": "Gorilla Bins",
+      "region": "Toronto",
+      "serviceFocus": "West GTA",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://www.gorillabins.ca/pricing/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 299,
+          "includedWeight": 1.0,
+          "unit": "tonne",
+          "materialTypes": {
+            "mixedWaste": { "price": 299, "includedWeight": 1.0 },
+            "cleanSoil": { "price": 550 },
+            "concreteOnly": { "price": 475 },
+            "asphaltOnly": { "price": 550 },
+            "redBricks": { "price": 650 },
+            "soilConcreteMix": { "price": 600, "notes": "Brampton specific rate" }
+          },
+          "notes": "Mixed waste includes 1 ton; material-specific pricing available for clean fill"
+        },
+        "20yd": {
+          "basePrice": 399,
+          "includedWeight": 1.0,
+          "unit": "tonnes",
+          "notes": "Updated: Includes 1 tonne (Brampton/Peel focus)"
+        },
+        "40yd": {
+          "basePrice": 499,
+          "includedWeight": 1.0,
+          "unit": "tonnes",
+          "notes": "Updated: Includes 1 tonne"
+        }
+      },
+      "overageFee": 115,
+      "overageUnit": "per tonne",
+      "fuelSurcharge": 15,
+      "fuelSurchargeUnit": "percentage",
+      "equipmentType": "Hook-Lift (Mini Bin)",
+      "notes": "Competes on base price but adds 15% fuel surcharge. Soil/Concrete mix rate of $600 available in Brampton."
+    },
+    {
+      "id": "scarborough-disposal",
+      "name": "Scarborough Disposal",
+      "region": "Toronto",
+      "serviceFocus": "East GTA",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://www.scarboroughdisposal.com/bin-rental-pricing/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 385,
+          "includedWeight": 1.5,
+          "unit": "tonnes",
+          "notes": "Strategic price point for kitchen renos (1.5T allowance)"
+        },
+        "14yd-segregated": {
+          "materialTypes": {
+            "dirt": { "price": 600, "notes": "Flat rate" },
+            "brick": { "price": 550, "notes": "Flat rate" },
+            "asphalt": { "price": 495, "notes": "Flat rate" },
+            "concrete": { "price": 495, "notes": "Flat rate" }
+          }
+        },
+        "20yd": {
+          "basePrice": 440,
+          "includedWeight": 2.0,
+          "unit": "tonnes",
+          "notes": "High value: +$55 for +6 yards and +0.5 tonnes"
+        },
+        "40yd": {
+          "basePrice": 495,
+          "includedWeight": 2.0,
+          "unit": "tonnes",
+          "notes": "Targeted at low-density, high-volume waste"
+        }
+      },
+      "overageFee": "Variable",
+      "additionalFees": {
+        "longHaul": { "range": [50, 175] },
+        "respotTravelTime": { "range": [95, 125] },
+        "waitingTime": { "rate": 120, "unit": "per hour" },
+        "binRental": { "rate": 25, "unit": "per day" }
+      },
+      "notes": "Benchmark for independent 'Mini Bin' operators. Strong material segregation strategy."
+    },
+    {
+      "id": "flat-rate-bin",
+      "name": "Flat Rate Bin",
+      "region": "Toronto",
+      "serviceFocus": "Mississauga/Toronto",
+      "pricingModel": "Flat Rate",
+      "sourceUrl": "https://www.flatratebin.ca/our-bins/garbage-bin-rental-prices-dumpster-sizes/",
+      "pricing": {
+        "14yd": { "basePrice": 450, "includedWeight": "Flat Rate" },
+        "16yd": { "basePrice": 475, "includedWeight": "Flat Rate" }
+      },
+      "notes": "Markets philosophically against 'per tonne' models to reduce customer anxiety."
+    },
+    {
+      "id": "purple-dumpster",
+      "name": "Purple Dumpster",
+      "region": "York Region",
+      "serviceFocus": "Markham/905",
+      "pricingModel": "Loss Leader / Overage",
+      "sourceUrl": "https://purpledumpster.com/",
+      "pricing": {
+        "14yd": { "basePrice": 399, "includedWeight": 1.0, "unit": "tonne", "notes": "Starting price" }
+      },
+      "overageFee": 190,
+      "overageUnit": "per tonne",
+      "notes": "High overage fee ($190/tonne) is the primary profit center. Base rates attract booking, overages generate margin."
+    },
+    {
+      "id": "true-north",
+      "name": "True North Dumpsters",
+      "region": "Markham",
+      "serviceFocus": "GTA",
+      "pricingModel": "High Volume Value",
+      "sourceUrl": "https://truenorthdumpsters.ca/dumpster-garbage-bin-prices-and-sizing/",
+      "pricing": {
+        "40yd": {
+          "basePrice": 575,
+          "includedWeight": 3.5,
+          "unit": "tonnes",
+          "notes": "Market leader for heavy loads. 3.5 tonne allowance exceeds standard 2.0 tonne limit."
+        }
+      },
+      "notes": "Dominant choice for large estate clear-outs."
+    },
+    {
+      "id": "redbins",
+      "name": "RedBins",
+      "region": "Pickering",
+      "serviceFocus": "Pickering/Oshawa",
+      "pricingModel": "Time-Based",
+      "sourceUrl": "https://www.redbins.ca/",
+      "pricing": {
+        "14yd": {
+          "3day": { "price": 359, "includedWeight": 0.75, "unit": "tonne" },
+          "7day": { "price": 460, "includedWeight": 1.0, "unit": "tonne" }
+        },
+        "20yd": {
+          "3day": { "price": 479, "includedWeight": 1.0, "unit": "tonne" },
+          "7day": { "price": 590, "includedWeight": 1.0, "unit": "tonne" }
+        },
+        "40yd": {
+          "3day": { "price": 679, "includedWeight": 1.0, "unit": "tonne" },
+          "7day": { "price": 779, "includedWeight": 1.0, "unit": "tonne" }
+        }
+      },
+      "overageFee": 115,
+      "overageUnit": "per tonne",
+      "notes": "Unique 3-Day vs 7-Day pricing to increase asset velocity. 3-day option has very low weight allowance (0.75t)."
+    },
+    {
+      "id": "gta-bins",
+      "name": "GTA Bins",
+      "region": "Toronto",
+      "serviceFocus": "Toronto",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://gtabins.ca/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 470,
+          "includedWeight": 1.5,
+          "unit": "tonnes",
+          "materialTypes": {
+            "mixedGarbage": { "price": 470, "weightLimit": 1.5 },
+            "concrete": { "price": 470, "weightLimit": "No limit" },
+            "soilDirt": { "price": 570, "weightLimit": "No limit" }
+          },
+          "additionalFees": {
+            "mixingConcreteDirt": 200,
+            "additionalTonMix": 150
+          }
+        }
+      },
+      "overageFee": 120,
+      "overageUnit": "per tonne",
+      "notes": "Mixing materials incurs $200 fee plus $150/ton."
+    },
+    {
+      "id": "orange-bins",
+      "name": "Orange Bins",
+      "region": "Toronto",
+      "pricingModel": "Call for Quote",
+      "pricing": {
+        "20yd": { "basePrice": null, "capacity": "6 pickup loads" }
+      },
+      "notes": "No fixed rate published."
+    },
+    {
+      "id": "mr-bin-clean-fill",
+      "name": "Mr. Bin",
+      "region": "Toronto",
+      "pricingModel": "Flat Rate",
+      "pricing": {
+        "14yd": { "basePrice": 500, "materialType": "clean fill" },
+        "40yd": { "basePrice": null, "deliveryFee": 250, "includedWeight": 4.0, "unit": "tons" }
+      },
+      "equipmentRentals": { "compactExcavator": 250 }
+    },
+    {
+      "id": "bin-affordable",
+      "name": "Bin Affordable",
+      "region": "Pickering",
+      "serviceFocus": "Pickering/Ajax",
+      "pricingModel": "Tonnage Cap",
+      "fuelSurcharge": 18,
+      "fuelSurchargeUnit": "percentage",
+      "notes": "Example: $400 quoted = $460-$472 before tax"
+    },
+    {
+      "id": "durham-topsoil-pickering",
+      "name": "Durham Topsoil",
+      "region": "Pickering",
+      "serviceFocus": "Pickering",
+      "pricingModel": "Premium",
+      "sourceUrl": "https://durhamtopsoil.com/bin-rental-pricing",
+      "pricing": {
+        "14yd": {
+          "basePrice": 550,
+          "includedWeight": 2.0,
+          "unit": "tons"
+        },
+        "20yd": {
+          "basePrice": 590,
+          "includedWeight": 2.0,
+          "unit": "tons"
+        },
+        "40yd": {
+          "basePrice": 640,
+          "includedWeight": 2.0,
+          "unit": "tons"
+        }
+      },
+      "notes": "High deposit required"
+    },
+    {
+      "id": "scarborough-disposal-pickering",
+      "name": "Scarborough Disposal",
+      "region": "Pickering",
+      "serviceFocus": "Pickering",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://www.scarboroughdisposal.com/service-areas/bin-rentals-pickering/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 385,
+          "includedWeight": 1.5,
+          "unit": "tonnes"
+        },
+        "20yd": {
+          "basePrice": 440,
+          "includedWeight": 2.0,
+          "unit": "tonnes"
+        },
+        "40yd": {
+          "basePrice": 495,
+          "includedWeight": 2.0,
+          "unit": "tonnes"
+        }
+      }
+    },
+    {
+      "id": "186-need-a-bin-pickering",
+      "name": "186 Need-A-Bin",
+      "region": "Pickering",
+      "serviceFocus": "Pickering",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://www.186needabin.com/dumpster-rentals/bin-rental-pickering/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 299,
+          "includedWeight": 1.0,
+          "unit": "tonne"
+        }
+      }
+    },
+    {
+      "id": "bin-there-dump-that-gta",
+      "name": "Bin There Dump That",
+      "region": "Toronto",
+      "pricingModel": "Premium Service",
+      "equipmentType": "Hook-Lift (Residential Friendly)",
+      "sourceUrl": "https://www.bintheredumpthat.com/toronto-bin-rentals/",
+      "pricing": {
+        "20yd": {
+          "dimensions": "11'L x 8'W x 6'H",
+          "notes": "Residential friendly, driveway protection"
+        }
+      },
+      "notes": "Premium pricing for residential friendly service."
+    },
+    {
+      "id": "gfl-environmental",
+      "name": "GFL Environmental",
+      "region": "Toronto",
+      "pricingModel": "Commercial",
+      "equipmentType": "Cable Hoist (Roll-Off)",
+      "pricing": {
+        "20yd": { "dimensions": "22'L x 8'W x 4.5'H", "capacity": "16,000+ lbs" }
+      },
+      "notes": "Heavy-duty, requires long runway."
+    },
+    {
+      "id": "discount-bin-services",
+      "name": "Discount Bin Services",
+      "region": "Niagara",
+      "serviceFocus": "Region Wide",
+      "pricingModel": "Zone Pricing",
+      "sourceUrl": "https://discountbinservices.com/garbage-bin-rental/",
+      "pricing": {
+        "14yd": {
+          "zone2": { "basePrice": 299, "includedWeight": 1.5, "unit": "tonnes", "location": "Grimsby" },
+          "zone3": { "basePrice": 310, "includedWeight": 1.0, "unit": "tonne", "location": "St. Catharines" }
+        },
+        "20yd": {
+          "zone2": { "basePrice": 325, "includedWeight": 1.5, "unit": "tonnes", "location": "Grimsby" },
+          "zone3": { "basePrice": 320, "includedWeight": 1.0, "unit": "tonne", "location": "St. Catharines" }
+        }
+      },
+      "overageFee": { "zone2": 95, "zone3": 120 },
+      "notes": "Uses 'Distance Tax': Zone 3 (St. Catharines) has lower weight allowance (1.0T vs 1.5T) effectively raising price."
+    },
+    {
+      "id": "budget-bin-niagara",
+      "name": "Budget Bin",
+      "region": "Niagara",
+      "serviceFocus": "Region Wide",
+      "pricingModel": "Zone Pricing",
+      "sourceUrl": "https://budgetbin.ca/rental-details/bin-solutions/",
+      "pricing": {
+        "14yd": { "basePrice": 300, "notes": "Zone 1/2" },
+        "20yd": { "basePrice": 325, "notes": "Zone 1/2" },
+        "40yd": { "basePrice": 465, "notes": "Very low price suggests 'Shipping Only' rate." }
+      },
+      "overageFee": 120,
+      "overageUnit": "per tonne",
+      "notes": "Strict liability terms for driveway damage."
+    },
+    {
+      "id": "mini-binz",
+      "name": "Mini Binz",
+      "region": "Niagara",
+      "serviceFocus": "Residential Light Duty",
+      "pricingModel": "Flat Rate Strategy",
+      "sourceUrl": "https://www.minibinz.ca/dumpster-rental-st-catharines-ontario",
+      "pricing": {
+        "15yd": { "basePrice": 329, "includedWeight": 1.0, "unit": "tonne" },
+        "20yd": { "basePrice": 329, "includedWeight": 1.0, "unit": "tonne" }
+      },
+      "overageFee": 130,
+      "overageUnit": "per tonne",
+      "notes": "Same price for 15/20yd to encourage larger bin usage and reduce inventory complexity."
+    },
+    {
+      "id": "york1-niagara",
+      "name": "York 1",
+      "region": "Niagara",
+      "serviceFocus": "St. Catharines",
+      "pricingModel": "Flat Rate",
+      "sourceUrl": "https://york1.com/services/bin-rental/st-catharines/",
+      "pricing": {
+        "14yd": { "basePrice": 399, "includedWeight": "Flat Rate" },
+        "20yd": { "basePrice": 399, "includedWeight": "Flat Rate" },
+        "40yd": { "basePrice": 399, "includedWeight": "Flat Rate" }
+      },
+      "notes": "Online Special extends to St. Catharines."
+    },
+    {
+      "id": "kens-salvage",
+      "name": "Ken's Salvage",
+      "region": "Niagara",
+      "serviceFocus": "Local Market Anchor",
+      "pricingModel": "All-Inclusive",
+      "sourceUrl": "https://kenssalvage.com/trash-bins-dumpsters/",
+      "pricing": {
+        "40yd": { "capacity": "12 pickup truck loads" }
+      },
+      "inclusions": ["Delivery", "Pickup", "Fuel", "HST"],
+      "notes": "Legacy operator (70+ years). Competitive 'off-book' quotes."
+    },
+    {
+      "id": "cotton-inc",
+      "name": "Cotton Inc.",
+      "region": "Niagara",
+      "serviceFocus": "Industrial",
+      "pricingModel": "Commercial",
+      "equipmentTypes": ["Med Duty Roll-Off", "Lugger Bins"],
+      "notes": "Lugger bins used for scrap metal."
+    },
+    {
+      "id": "true-north-niagara",
+      "name": "True North Dumpsters",
+      "region": "Niagara",
+      "serviceFocus": "Niagara",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://truenorthdumpsters.ca/niagara-dumpster-rentals/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 360,
+          "includedWeight": 1.0,
+          "unit": "tonne"
+        },
+        "20yd": {
+          "basePrice": 450,
+          "includedWeight": 2.0,
+          "unit": "tonnes"
+        },
+        "40yd": {
+          "basePrice": 575,
+          "includedWeight": 3.5,
+          "unit": "tonnes"
+        }
+      },
+      "notes": "Market leader for heavy loads. 3.5 tonne allowance exceeds standard 2.0 tonne limit."
+    },
+    {
+      "id": "bin-there-dump-that-niagara",
+      "name": "Bin There Dump That",
+      "region": "Niagara",
+      "serviceFocus": "St. Catharines, Niagara Falls, Welland",
+      "pricingModel": "Premium Service",
+      "sourceUrl": "https://www.bintheredumpthat.com/niagara-region-bin-rentals/",
+      "equipmentType": "Hook-Lift (Residential Friendly)",
+      "notes": "Residential and commercial dumpster rentals. Premium pricing for residential friendly service."
+    },
+    {
+      "id": "red-e-bins-niagara",
+      "name": "Red-E-Bins Niagara",
+      "region": "Niagara",
+      "serviceFocus": "Fort Erie, Grimsby, Niagara Falls",
+      "pricingModel": "Flat Rate",
+      "sourceUrl": "https://redebinsniagara.ca/",
+      "notes": "Waste bin dumpster rentals and junk removal services with all-inclusive pricing."
+    },
+    {
+      "id": "city-waste-services-niagara",
+      "name": "City Waste Services",
+      "region": "Niagara",
+      "serviceFocus": "Niagara Falls, St. Catharines",
+      "pricingModel": "Rental + Disposal",
+      "sourceUrl": "http://www.citywasteservices.ca/",
+      "notes": "Cheap bin rentals with lowest price guarantee. Serves Niagara region."
+    },
+    {
+      "id": "dumpsters-r-us",
+      "name": "Dumpsters R Us",
+      "region": "Halifax",
+      "pricingModel": "Haul + Tipping",
+      "sourceUrl": "https://halifaxdumpsters.com/",
+      "pricing": {
+        "10yd": { "priceRange": [375, 535] },
+        "15yd": { "priceRange": [425, 700] },
+        "20yd": { "priceRange": [475, 900] },
+        "30yd": { "priceRange": [550, 1010] }
+      },
+      "additionalFees": {
+        "freon": 50,
+        "mattress": 100,
+        "tires": 40,
+        "overloading": 85
+      },
+      "notes": "Wide price ranges reflect 'Base + 1 Tonne' vs 'Heavy Load'."
+    },
+    {
+      "id": "1888-junkbin",
+      "name": "1-888-JunkBin",
+      "region": "Halifax",
+      "pricingModel": "Haul + Tipping",
+      "sourceUrl": "https://1888junkbin.com/",
+      "pricing": {
+        "baseRate": 250,
+        "sizes": [5, 10, 15, 20],
+        "unit": "yards"
+      },
+      "deposit": { "residential": 600 },
+      "notes": "Loss leader strategy: $250 flat rental for any size."
+    },
+    {
+      "id": "ez-junk-removal",
+      "name": "Geterdumped / EZ Junk Removal",
+      "region": "Halifax",
+      "pricingModel": "Cost-Plus",
+      "sourceUrl": "https://www.geterdumped.ca/rates",
+      "pricing": {
+        "baseRate": {
+          "halifax": 180,
+          "bedford": 200,
+          "sackville": 220
+        },
+        "notes": "Base rate + exact scale ticket cost."
+      },
+      "tippingFees": {
+        "mixedConstruction": 117.50,
+        "cleanShingles": 80,
+        "unit": "per tonne"
+      },
+      "notes": "Strong incentive to sort shingles. Transparent pricing."
+    },
+    {
+      "id": "bin-there-dump-that-halifax",
+      "name": "Bin There Dump That",
+      "region": "Halifax",
+      "pricingModel": "Premium Service",
+      "pricing": {
+        "14yd": { "basePrice": 350 }
+      },
+      "notes": "Caters to historic Halifax properties with narrow driveways."
+    },
+    {
+      "id": "chebucto-waste",
+      "name": "Chebucto Waste Management",
+      "region": "Halifax",
+      "pricingModel": "Commercial / Broker",
+      "pricing": {
+        "20yd": { "notes": "Commercial focus" },
+        "30yd": { "notes": "Commercial focus" }
+      },
+      "notes": "Integrated with major haulers."
+    },
+    {
+      "id": "silver-bullet-truro",
+      "name": "Silver Bullet Bins",
+      "region": "Truro",
+      "pricingModel": "Haul + Tipping",
+      "sourceUrl": "https://silverbulletbins.wixsite.com/silver-bullet-bins/dumpster-pricing",
+      "pricing": {
+        "baseRate": 250,
+        "sizes": [10, 15, 20],
+        "unit": "yards",
+        "rentalPeriod": 5
+      },
+      "notes": "Dominant independent in Colchester. $250 Any Size within Truro."
+    },
+    {
+      "id": "vcs-rolloffs",
+      "name": "VCS Rolloffs",
+      "region": "Truro",
+      "pricingModel": "Call for Quote",
+      "sourceUrl": "https://vcsrolloffs.ca/",
+      "pricing": {
+        "sizes": [10, 20]
+      },
+      "notes": "Emphasizes no hidden fees/fuel surcharges. Serves Truro/Pictou area."
+    },
+    {
+      "id": "nova-4-enviro-amherst",
+      "name": "Nova 4 Enviro",
+      "region": "Amherst",
+      "pricingModel": "Daily/Weekly",
+      "sourceUrl": "https://www.nova4enviro.ca/",
+      "notes": "Daily rates available. Call for quote."
+    },
+    {
+      "id": "fero-waste-amherst",
+      "name": "Fero Waste",
+      "region": "Amherst",
+      "pricingModel": "Commercial",
+      "sourceUrl": "https://www.municipalenvironmental.com/fero/service/dumpster-services",
+      "notes": "Commercial focus. Call for quote."
+    },
+    {
+      "id": "red-e-bins-halifax",
+      "name": "RED E BINS NS",
+      "region": "Halifax",
+      "pricingModel": "Flat Rate",
+      "sourceUrl": "https://halifax.redebins.ca/",
+      "pricing": {
+        "5yd": {
+          "basePrice": null,
+          "notes": "All-inclusive flat rates"
+        },
+        "10yd": {
+          "basePrice": null,
+          "notes": "All-inclusive flat rates"
+        }
+      },
+      "notes": "Residential, commercial, and personal waste disposal. 5 and 10-yard bin rentals at all-inclusive flat rates."
+    },
+    {
+      "id": "volcano-construction-halifax",
+      "name": "Volcano Construction Services",
+      "region": "Halifax",
+      "serviceFocus": "Dartmouth",
+      "pricingModel": "Commercial",
+      "sourceUrl": "http://www.volcanocsl.ca/",
+      "pricing": {
+        "16yd": {
+          "basePrice": null,
+          "notes": "16.2 cubic yard bins available"
+        }
+      },
+      "notes": "Residential and commercial bin rentals. Construction company offering bin rental services."
+    },
+    {
+      "id": "bins-toronto",
+      "name": "Bins Toronto",
+      "region": "GTA (Peel/York)",
+      "serviceFocus": "Mississauga/Brampton",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://binstoronto.ca/",
+      "pricing": {
+        "14yd": { "basePrice": 450, "includedWeight": 2.0, "unit": "tons" },
+        "20yd": { "basePrice": 525, "includedWeight": 2.5, "unit": "tons" },
+        "30yd": { "basePrice": 650, "includedWeight": 3.5, "unit": "tons" }
+      },
+      "overageFee": 135,
+      "overageUnit": "per ton",
+      "notes": "Higher base price but includes 2.0-2.5 tonnes, good value for dense renovation materials."
+    },
+    {
+      "id": "waste-management-toronto",
+      "name": "Waste Management (WM)",
+      "region": "Toronto",
+      "serviceFocus": "GTA",
+      "pricingModel": "Haul + Delivery",
+      "sourceUrl": "https://www.wm.com/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 829.58,
+          "includedWeight": 2.0,
+          "haulFee": 401.18,
+          "deliveryFee": 428.40
+        },
+        "20yd": {
+          "basePrice": 829.58,
+          "includedWeight": 2.0
+        },
+        "40yd": {
+          "basePrice": 1058.85,
+          "includedWeight": 4.0
+        }
+      },
+      "fees": "$99/ton overage. $18.75/day extension.",
+      "notes": "Online pricing available."
+    },
+    {
+      "id": "waste-management-mississauga",
+      "name": "Waste Management (WM)",
+      "region": "Mississauga",
+      "serviceFocus": "Mississauga",
+      "pricingModel": "Haul + Delivery",
+      "sourceUrl": "https://www.wm.com/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 625.58,
+          "includedWeight": 2.0
+        },
+        "15yd": { "basePrice": 625.58, "includedWeight": 2.0 },
+        "40yd": { "basePrice": 861.88, "includedWeight": 4.0 }
+      },
+      "fees": "$99/ton overage."
+    },
+    {
+      "id": "york1-markham",
+      "name": "York 1",
+      "region": "Markham",
+      "serviceFocus": "Markham",
+      "pricingModel": "Flat Rate",
+      "sourceUrl": "https://york1.com/services/bin-rental/markham/",
+      "pricing": {
+        "14yd": { "basePrice": 379, "includedWeight": "Flat Rate" },
+        "20yd": { "basePrice": 399, "includedWeight": "Flat Rate" },
+        "40yd": { "basePrice": 399, "includedWeight": "Flat Rate" }
+      },
+      "notes": "Flat-rate bin rental services with no overage fees for household waste."
+    },
+    {
+      "id": "scarborough-disposal-markham",
+      "name": "Scarborough Disposal",
+      "region": "Markham",
+      "serviceFocus": "Markham",
+      "pricingModel": "Tonnage Cap",
+      "sourceUrl": "https://www.scarboroughdisposal.com/service-areas/bin-rentals-markham/",
+      "pricing": {
+        "20yd": {
+          "basePrice": 440,
+          "includedWeight": 2.0,
+          "unit": "tonnes"
+        }
+      }
+    },
+    {
+      "id": "cube-bin-rentals-markham",
+      "name": "Cube Bin Rentals",
+      "region": "Markham",
+      "serviceFocus": "Markham",
+      "pricingModel": "Flat Rate + High Overage",
+      "sourceUrl": "https://cubebinrentals.com/",
+      "pricing": {
+        "14yd": { "basePrice": 330, "includedWeight": 1.0, "unit": "tonne" },
+        "20yd": { "basePrice": 330, "includedWeight": 1.0, "unit": "tonne" }
+      },
+      "overageFee": 126,
+      "overageUnit": "per tonne",
+      "notes": "Radical simplification: $330 flat fee for any size bin. Relies on high overage fee ($126/tonne)."
+    },
+    {
+      "id": "flat-rate-bin-markham",
+      "name": "Flat Rate Bin",
+      "region": "Markham",
+      "serviceFocus": "Markham",
+      "pricingModel": "Flat Rate",
+      "sourceUrl": "https://www.flatratebin.ca/our-bins/garbage-bin-rental-prices-dumpster-sizes/",
+      "pricing": {
+        "14yd": { "basePrice": 450, "includedWeight": "Flat Rate" },
+        "16yd": { "basePrice": 475, "includedWeight": "Flat Rate" }
+      },
+      "notes": "Markets philosophically against 'per tonne' models to reduce customer anxiety."
+    },
+    {
+      "id": "purple-dumpster-markham",
+      "name": "Purple Dumpster",
+      "region": "Markham",
+      "serviceFocus": "Markham/905",
+      "pricingModel": "Loss Leader / Overage",
+      "sourceUrl": "https://purpledumpster.com/",
+      "pricing": {
+        "14yd": { "basePrice": 399, "includedWeight": 1.0, "unit": "tonne", "notes": "Starting price" }
+      },
+      "overageFee": 190,
+      "overageUnit": "per tonne",
+      "notes": "High overage fee ($190/tonne) is the primary profit center. Base rates attract booking, overages generate margin."
+    },
+    {
+      "id": "bin-there-dump-that-markham",
+      "name": "Bin There Dump That",
+      "region": "Markham",
+      "serviceFocus": "Markham",
+      "pricingModel": "Premium Service",
+      "sourceUrl": "http://bintheredumpthat.com/dumpsterrentalmarkham",
+      "equipmentType": "Hook-Lift (Residential Friendly)",
+      "pricing": {
+        "4yd": { "basePrice": null, "notes": "Available" },
+        "20yd": { "basePrice": null, "notes": "Available" }
+      },
+      "notes": "Competitive and transparent pricing. Various bin sizes from 4-yard to 20-yard bins."
+    },
+    {
+      "id": "platinum-mini-bins-markham",
+      "name": "Platinum Mini Bins / RimRoc Disposal",
+      "region": "Markham",
+      "serviceFocus": "Markham",
+      "pricingModel": "Commercial",
+      "sourceUrl": "https://platinumminibins.ca/",
+      "notes": "Custom waste removal solutions for residential, commercial, and industrial clients."
+    },
+    {
+      "id": "waste-management-markham",
+      "name": "Waste Management (WM)",
+      "region": "Markham",
+      "serviceFocus": "Markham",
+      "pricingModel": "Haul + Delivery",
+      "sourceUrl": "https://www.wm.com/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 900.36,
+          "includedWeight": 2.0
+        },
+        "15yd": { "basePrice": 900.36, "includedWeight": 2.0 },
+        "20yd": { "basePrice": 900.36, "includedWeight": 2.0 },
+        "40yd": { "basePrice": 1134.80, "includedWeight": 4.0 }
+      },
+      "fees": "$99/ton overage."
+    },
+    {
+      "id": "waste-management-brampton",
+      "name": "Waste Management (WM)",
+      "region": "Brampton",
+      "serviceFocus": "Brampton",
+      "pricingModel": "Haul + Delivery",
+      "sourceUrl": "https://www.wm.com/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 676.73,
+          "includedWeight": 2.0
+        },
+        "15yd": { "basePrice": 676.73, "includedWeight": 2.0 },
+        "20yd": { "basePrice": 676.73, "includedWeight": 2.0 },
+        "40yd": { "basePrice": 913.02, "includedWeight": 4.0 }
+      },
+      "fees": "$99/ton overage."
+    },
+    {
+      "id": "waste-management-niagara",
+      "name": "Waste Management (WM)",
+      "region": "Niagara",
+      "serviceFocus": "Niagara",
+      "pricingModel": "Haul + Delivery",
+      "sourceUrl": "https://www.wm.com/",
+      "pricing": {
+        "14yd": {
+          "basePrice": 650.84,
+          "includedWeight": 2.0
+        },
+        "15yd": { "basePrice": 650.84, "includedWeight": 2.0 },
+        "20yd": { "basePrice": 650.84, "includedWeight": 2.0 },
+        "40yd": { "basePrice": 894.54, "includedWeight": 4.0 }
+      },
+      "fees": "$99/ton overage."
+    }
+  ],
+  "marketAnalysis": {
+    "pricingModels": {
+      "flatRate": {
+        "description": "All-inclusive pricing, no overage risk",
+        "examples": ["York 1", "Miller Waste (Truro)", "Ken's Salvage", "Cube Bin Rentals"],
+        "targetMarket": "Residential consumers prioritizing budget certainty",
+        "advantages": ["Price certainty", "No bill shock", "Simplified budgeting"],
+        "disadvantages": ["Potentially higher base price", "May not optimize for light loads"]
+      },
+      "tonnageCap": {
+        "description": "Lower base rate with included weight limit, overage fees apply",
+        "examples": ["Gorilla Bins", "Scarborough Disposal", "GTA Bins", "Bins Toronto"],
+        "targetMarket": "Contractors who can accurately gauge waste density",
+        "advantages": ["Lower barrier to entry", "Rewards efficiency"],
+        "disadvantages": ["Risk of overage fees", "Requires weight estimation expertise"]
+      },
+      "haulPlusTipping": {
+        "description": "Base rate for logistics, disposal fees passed directly to customer",
+        "examples": ["Dumpsters R Us", "1-888-JunkBin", "Silver Bullet"],
+        "targetMarket": "Customers with high-volume, low-weight loads",
+        "advantages": ["Transparency", "Precise job costing possible"],
+        "disadvantages": ["Variable final cost", "Requires tipping fee data"]
+      },
+      "rentalPlusTonnage": {
+        "description": "Distinct from Haul + Tipping. Low base rental fee + exact disposal cost per tonne.",
+        "examples": ["City Waste Services"],
+        "targetMarket": "Light loads (household junk) where flat rate is overkill.",
+        "advantages": ["Cheapest option for light loads"],
+        "disadvantages": ["Most expensive for heavy loads (renovation debris)"]
+      },
+      "haulPlusDelivery": {
+        "description": "Fixed separate line items: Haul + Delivery. Both components predetermined.",
+        "examples": ["Waste Management (WM)"],
+        "targetMarket": "Commercial/Residential seeking transparency",
+        "advantages": ["Cost transparency", "Fixed logistics fee"],
+        "disadvantages": ["Higher base price", "Delivery fee varies"]
+      },
+      "zonePricing": {
+        "description": "Distance from depot dictates base rate and included weight",
+        "examples": ["Discount Bin Services", "Budget Bin"],
+        "targetMarket": "Regional customers (Niagara/Peel)",
+        "notes": "Reflects logistical costs. Zone 3 (St. Catharines) often has lower weight allowance than Zone 2 (Grimsby)."
+      },
+      "timeBased": {
+        "description": "Pricing varies by rental duration to encourage asset velocity",
+        "examples": ["RedBins"],
+        "targetMarket": "Quick turnaround projects",
+        "notes": "3-Day rentals offer ~20% discount but reduced weight allowance."
+      }
+    },
+    "regionalCharacteristics": {
+      "GTA": {
+        "competitionLevel": "High",
+        "marketMaturity": "Most mature in Canada",
+        "pricingComplexity": "High - multiple models coexist",
+        "keyDrivers": ["High population density", "Aging housing stock", "Urban constraints"],
+        "trends": ["Loss Leader strategies (Purple Dumpster)", "Mini Bin dominance (Scarborough)", "Anti-tonnage marketing (Flat Rate Bin)"]
+      },
+      "Niagara": {
+        "competitionLevel": "Moderate",
+        "marketType": "Satellite market to GTA",
+        "pricingComplexity": "Moderate - zone-based pricing",
+        "keyDrivers": ["Distance from depot", "Local vs GTA providers", "70+ year local incumbents"],
+        "trends": ["Zone 1/2/3 surcharges", "All-inclusive local options", "Budget Bin's liability terms"]
+      },
+      "Halifax": {
+        "competitionLevel": "Moderate",
+        "marketType": "Centralized, regulated",
+        "pricingComplexity": "Low - standardized $250 base",
+        "keyDrivers": ["Otter Lake Waste Processing ($126.50/tonne)", "C&D recycling mandates", "Historic property constraints"],
+        "trends": ["Convergence around $250 base rate", "Cost-Plus transparency (Geterdumped)", "High item surcharges (Mattress $100)"]
+      },
+      "Truro": {
+        "competitionLevel": "Low-Moderate",
+        "marketType": "Hub for central Nova Scotia",
+        "pricingComplexity": "Low",
+        "keyDrivers": ["Distance from Halifax", "Local vs Halifax-based providers"],
+        "trends": ["Mix of local and Halifax providers", "All-inclusive options competitive"]
+      }
+    },
+    "equipmentTypes": {
+      "cableHoist": {
+        "description": "Roll-off system, requires long runway",
+        "examples": ["GFL", "Waste Management", "York 1"],
+        "characteristics": ["Heavy-duty", "16,000+ lbs capacity", "Less maneuverable"],
+        "typicalDimensions": "22'L x 8'W x 4.5'H",
+        "useCase": "Large-scale demolition, commercial"
+      },
+      "hookLift": {
+        "description": "Hydraulic hook lifts bin onto chassis",
+        "examples": ["Gorilla Bins", "Bin There Dump That", "Mini Binz"],
+        "characteristics": ["Tighter placement angles", "Lighter trucks", "Less driveway damage"],
+        "typicalDimensions": "11'L x 8'W x 6'H (BTDT 20yd)",
+        "useCase": "Residential, urban sites, Mini Bin operations"
+      }
+    },
+    "materialTypes": {
+      "household": {
+        "description": "Standard residential waste",
+        "pricing": "Standard rates apply"
+      },
+      "construction": {
+        "description": "Construction and demolition debris",
+        "pricing": "May have separate rates or higher base prices"
+      },
+      "inertFill": {
+        "description": "Clean dirt, concrete, asphalt",
+        "pricing": "Heavily discounted (37-40% off standard)",
+        "notes": "Can be recycled/repurposed, doesn't occupy landfill space",
+        "priceRange": {
+          "low": 240,
+          "high": 600,
+          "provider": "York 1 vs Scarborough Disposal",
+          "notes": "Disparity suggests different disposal facility access"
+        },
+        "contamination": {
+          "impact": "Reverts to mixed waste pricing",
+          "notes": "Mixing with plastic, wood, or drywall eliminates discount"
+        }
+      }
+    },
+    "regulatoryFactors": {
+      "toronto2025": {
+        "feeHike": 3.75,
+        "impact": "Residential curbside collection fees rising (large bin >$505/year)",
+        "effect": "Stimulates private rental market",
+        "renovictionLicensing": {
+          "effectiveDate": "July 2025",
+          "requirement": "Landlords must obtain permits for renovations",
+          "impact": "May extend bin rental periods, increase demand for flexible terms"
+        }
+      },
+      "halifax": {
+        "facility": "Otter Lake Waste Processing & Disposal Facility",
+        "regulation": "Strict C&D recycling mandates",
+        "impact": "Pricing structures toward standardization"
+      }
+    },
+    "costDrivers": {
+      "tippingFees": {
+        "description": "Fees charged at disposal facilities",
+        "impact": "Major cost component, varies by material type",
+        "transparency": "Halifax model passes directly to customer, Ontario often embedded"
+      },
+      "fuelSurcharges": {
+        "range": "15-18%",
+        "examples": {
+          "gorillaBins": 15,
+          "binAffordable": 18
+        },
+        "impact": "$400 quoted = $460-$472 before tax",
+        "volatility": "Fluctuates with pump prices"
+      },
+      "logistics": {
+        "components": ["Truck", "Driver", "Fuel", "Time"],
+        "standardizedRate": 250,
+        "notes": "Halifax market equilibrium suggests $250 covers logistics costs"
+      },
+      "environmentalCompliance": {
+        "description": "Costs associated with waste diversion and recycling",
+        "impact": "Affects pricing, especially for clean fill vs mixed waste"
+      }
+    },
+    "pricingModelProsCons": {
+      "flatRate": {
+        "pros": ["Price certainty", "No bill shock", "Simple budgeting"],
+        "cons": ["May overpay for light loads", "Limited flexibility", "Often subsidized by heavy users"],
+        "bestFor": "Residential homeowners",
+        "marketShare": "25%",
+        "examples": ["York 1", "Cube Bin Rentals"]
+      },
+      "tonnageCap": {
+        "pros": ["Low entry price", "Rewards efficiency", "Scalable for contractors"],
+        "cons": ["Overage risk", "Requires weight estimation", "Variable final cost"],
+        "bestFor": "Contractors & remodelers",
+        "marketShare": "50%",
+        "examples": ["Gorilla Bins", "Scarborough Disposal"]
+      },
+      "haulPlusTipping": {
+        "pros": ["Transparent pricing", "Fair for heavy loads", "Precise job costing"],
+        "cons": ["Variable costs", "Requires tipping fee knowledge", "Complex for small jobs"],
+        "bestFor": "Heavy renovation projects",
+        "marketShare": "15%",
+        "examples": ["1-888-JunkBin", "Silver Bullet"]
+      },
+      "commercialQuote": {
+        "pros": ["Volume discounts", "Custom solutions", "Negotiated terms"],
+        "cons": ["No price certainty", "Requires negotiation", "Minimum volumes"],
+        "bestFor": "Large industrial clients",
+        "marketShare": "10%",
+        "examples": ["Miller Waste", "Waste Management"]
+      }
+    },
+    "recommendations": {
+      "residential": {
+        "bestOption": "Flat-rate models (York 1 GTA/Niagara, Miller Waste Truro)",
+        "rationale": "Protection against bill shock, $50 savings rarely worth $115/tonne overage risk"
+      },
+      "commercial": {
+        "gta": "Scarborough Disposal - best weight-to-price ratio (2 tonnes for $440)",
+        "halifax": "$250 Haul + Disposal model allows precise job costing with accurate tipping fee data"
+      },
+      "urbanSites": {
+        "priority": "Physical dimensions paramount",
+        "example": "Downtown Toronto/Halifax: 11-foot BTDT bin may be only compliant option",
+        "note": "Price secondary to feasibility"
+      }
+    },
+    "futureOutlook": {
+      "trend": "Evolution from commodity haulage to sophisticated logistics and compliance sector",
+      "challenges": ["Rising fuel surcharges (18%)", "Municipal fee increases", "Regulatory complexity"],
+      "successFactors": [
+        "Nuanced understanding of waste streams",
+        "Strict source separation for clean fill discounts",
+        "Careful container sizing for urban constraints"
+      ]
+    }
+  },
+  "dimensions": {
+    "standardRollOff": {
+      "provider": "GFL Environmental",
+      "20yd": {
+        "length": 22,
+        "width": 8,
+        "height": 4.5,
+        "unit": "feet",
+        "notes": "Requires substantial driveway length"
+      }
+    },
+    "residentialFriendly": {
+      "provider": "Bin There Dump That",
+      "20yd": {
+        "length": 11,
+        "width": 8,
+        "height": 6,
+        "unit": "feet",
+        "notes": "Half the length, double the height, fits in single parking space"
+      }
+    },
+    "middleGround": {
+      "provider": "York 1",
+      "20yd": {
+        "length": 20,
+        "width": 8,
+        "height": 4,
+        "unit": "feet",
+        "notes": "Slightly shorter than GFL, easier for loading but harder to site"
+      }
+    }
+  },
+  "statistics": {
+    "averagePrices": {
+      "14yd": {
+        "gta": 385,
+        "niagara": 305,
+        "halifax": 250,
+        "truro": 250,
+        "overall": 297.5
+      },
+      "20yd": {
+        "gta": 399,
+        "niagara": 320,
+        "halifax": 250,
+        "truro": 250,
+        "overall": 304.75
+      },
+      "40yd": {
+        "gta": 464,
+        "niagara": 399,
+        "halifax": 250,
+        "truro": 250,
+        "overall": 340.75
+      }
+    },
+    "overageFees": {
+      "range": [115, 130],
+      "unit": "per tonne",
+      "average": 122.5
+    },
+    "fuelSurcharges": {
+      "range": [15, 18],
+      "unit": "percentage",
+      "average": 16.5
+    }
+  }
+};
+
+        // Theme Configuration
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        Chart.defaults.color = '#64748b'; // Slate 500
+        Chart.defaults.scale.grid.color = '#f1f5f9'; // Slate 100
+        Chart.defaults.scale.grid.borderColor = 'transparent';
+        
+        const colors = {
+            primary: '#895431',   // Miller Brown
+            secondary: '#06b6d4', // Cyan 500 (Contrast)
+            tertiary: '#8b5cf6',  // Violet 500 (Contrast)
+            slate: '#cbd5e1'      // Slate 300
+        };
+
+        function processData(jsonData) {
+            const processedData = [];
+            const providers = jsonData.providers;
+
+            providers.forEach(provider => {
+                const location = provider.region || 'Unknown';
+                const business = provider.name || 'Unknown';
+                const sourceUrl = provider.sourceUrl || null;
+                const pricingModel = provider.pricingModel || '';
+                const notes = provider.notes || provider.pricing?.['14yd']?.notes || provider.pricing?.['20yd']?.notes || provider.pricing?.['40yd']?.notes || '';
+                
+                let p14 = null, p20 = null, p40 = null;
+                let p14Materials = null;
+                let fees = [];
+                
+                // Extraction Logic
+                if (provider.pricing) {
+                    // 14yd extraction - also check for 15yd (treat as 14yd)
+                    if (provider.pricing['14yd']?.basePrice) {
+                        // FORCE PARSE FLOAT
+                        const val = parseFloat(provider.pricing['14yd'].basePrice);
+                        if (!isNaN(val)) {
+                            p14 = val;
+                            // Extract material types if available
+                            if (provider.pricing['14yd'].materialTypes) {
+                                p14Materials = provider.pricing['14yd'].materialTypes;
+                            }
+                        }
+                    } else if (provider.pricing['15yd']?.basePrice) {
+                        // Treat 15yd as 14yd
+                        const val = parseFloat(provider.pricing['15yd'].basePrice);
+                        if (!isNaN(val)) p14 = val;
+                    } else if (provider.pricing['15yd']?.priceRange) {
+                        // Treat 15yd as 14yd (use first value of range)
+                        const val = parseFloat(provider.pricing['15yd'].priceRange[0]);
+                        if (!isNaN(val)) p14 = val;
+                    } else if (provider.pricing['14yd']?.['7day']?.price) {
+                        // Handle RedBins time-based pricing (use 7day as standard)
+                        const val = parseFloat(provider.pricing['14yd']['7day'].price);
+                        if (!isNaN(val)) p14 = val;
+                    } else if (provider.pricing['15yd']?.['7day']?.price) {
+                        // Treat 15yd as 14yd
+                        const val = parseFloat(provider.pricing['15yd']['7day'].price);
+                        if (!isNaN(val)) p14 = val;
+                    } else if (provider.pricing['14yd']?.['3day']?.price) {
+                        // Fallback to 3day if 7day not available
+                        const val = parseFloat(provider.pricing['14yd']['3day'].price);
+                        if (!isNaN(val)) p14 = val;
+                    } else if (provider.pricing['15yd']?.['3day']?.price) {
+                        // Treat 15yd as 14yd
+                        const val = parseFloat(provider.pricing['15yd']['3day'].price);
+                        if (!isNaN(val)) p14 = val;
+                    }
+                    
+                    if (provider.pricing['20yd']?.basePrice) {
+                        const val = parseFloat(provider.pricing['20yd'].basePrice);
+                        if (!isNaN(val)) p20 = val;
+                    } else if (provider.pricing['20yd']?.priceRange) {
+                        const val = parseFloat(provider.pricing['20yd'].priceRange[0]);
+                        if (!isNaN(val)) p20 = val;
+                    } else if (provider.pricing['20yd']?.['7day']?.price) {
+                        // Handle RedBins time-based pricing (use 7day as standard)
+                        const val = parseFloat(provider.pricing['20yd']['7day'].price);
+                        if (!isNaN(val)) p20 = val;
+                    } else if (provider.pricing['20yd']?.['3day']?.price) {
+                        // Fallback to 3day if 7day not available
+                        const val = parseFloat(provider.pricing['20yd']['3day'].price);
+                        if (!isNaN(val)) p20 = val;
+                    }
+                    
+                    if (provider.pricing['40yd']?.basePrice) {
+                        const val = parseFloat(provider.pricing['40yd'].basePrice);
+                        if (!isNaN(val)) p40 = val;
+                    } else if (provider.pricing['40yd']?.['7day']?.price) {
+                        // Handle RedBins time-based pricing (use 7day as standard)
+                        const val = parseFloat(provider.pricing['40yd']['7day'].price);
+                        if (!isNaN(val)) p40 = val;
+                    } else if (provider.pricing['40yd']?.['3day']?.price) {
+                        // Fallback to 3day if 7day not available
+                        const val = parseFloat(provider.pricing['40yd']['3day'].price);
+                        if (!isNaN(val)) p40 = val;
+                    }
+                    
+                    if (provider.pricing.baseRate) { // Halifax Model
+                        const r = parseFloat(provider.pricing.baseRate);
+                        if (!isNaN(r)) {
+                            const s = provider.pricing.sizes || [];
+                            if (s.includes(14) || s.includes(15)) p14 = r; // Treat 15 as 14
+                            if (s.includes(20)) p20 = r;
+                            if (s.includes(40)) p40 = r;
+                            if (s.length === 0) { p14=r; p20=r; p40=r; }
+                        }
+                    }
+
+                    if (provider.pricing.allInclusive?.baseRate) { // Miller Model
+                         const r = parseFloat(provider.pricing.allInclusive.baseRate);
+                         if (!isNaN(r)) {
+                             const s = provider.pricing.allInclusive.sizes || [];
+                             if (s.includes(14) || s.includes(15)) p14 = r; // Treat 15 as 14
+                             if (s.includes(20)) p20 = r;
+                             if (s.includes(40)) p40 = r;
+                         }
+                    }
+                }
+
+                if (provider.overageFee) fees.push(`$${typeof provider.overageFee === 'object' ? Object.values(provider.overageFee).join('/') : provider.overageFee} overage`);
+                if (provider.fuelSurcharge) fees.push(`${provider.fuelSurcharge}% fuel`);
+                if (provider.pricingModel === 'Flat Rate' || provider.pricingModel === 'All-Inclusive') fees.push('Included');
+                if (provider.pricingModel === 'Haul + Tipping' || provider.pricingModel === 'Rental + Disposal') fees.push('+ Disposal');
+                
+                // Ensure we only push if we have at least one valid price or it's a Miller entry (for completeness)
+                if ((p14 !== null || p20 !== null || p40 !== null) || business.includes('Miller')) {
+                    processedData.push({
+                        location, business, p14, p20, p40, sourceUrl, pricingModel, notes,
+                        p14Materials, fees: fees.length ? fees.join(', ') : 'Varies'
+                    });
+                }
+            });
+            return processedData;
+        }
+
+        function createBarChart(canvasId, chartData) {
+            new Chart(document.getElementById(canvasId), {
+                type: 'bar',
+                data: {
+                    labels: chartData.map(d => d.business),
+                    datasets: [
+                        { label: '14yd', data: chartData.map(d => d.p14), backgroundColor: colors.primary, borderRadius: 4, barPercentage: 0.6 },
+                        { label: '20yd', data: chartData.map(d => d.p20), backgroundColor: colors.secondary, borderRadius: 4, barPercentage: 0.6 },
+                        { label: '40yd', data: chartData.map(d => d.p40), backgroundColor: colors.tertiary, borderRadius: 4, barPercentage: 0.6 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            callbacks: { label: (c) => c.raw ? `$${c.raw}` : 'Not Listed' }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [4, 4] }, ticks: { callback: v => '$' + v } },
+                        x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 45, minRotation: 45, font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = processData(databaseData);
+            
+            // --- UTILS ---
+            const calculateAverage = (dataset, key) => {
+                // Filter out Miller Waste from the average calculation
+                // Note: 15yd bins are already treated as 14yd during processData extraction
+                const valid = dataset.filter(d => d[key] != null && !d.business.includes('Miller'));
+                return valid.length ? (valid.reduce((a, b) => a + b[key], 0) / valid.length).toFixed(0) : 0;
+            };
+            const formatCurrency = (val) => val ? `$${val}` : '--';
+
+            // --- KPIS ---
+            const getMillerAvg = (key) => {
+                 const valid = data.filter(d => d[key] != null && d.business.includes('Miller'));
+                 return valid.length ? (valid.reduce((a, b) => a + b[key], 0) / valid.length).toFixed(0) : 0;
+            };
+
+            ['14', '20', '40'].forEach(size => {
+                const marketAvg = parseInt(calculateAverage(data, `p${size}`));
+                const millerAvg = parseInt(getMillerAvg(`p${size}`));
+                
+                document.getElementById(`avg${size}`).textContent = formatCurrency(marketAvg);
+                
+                const millerEl = document.getElementById(`miller${size}`);
+                if(millerEl) millerEl.textContent = formatCurrency(millerAvg);
+                
+                const diffEl = document.getElementById(`diff${size}`);
+                if (diffEl && marketAvg && millerAvg) {
+                    const diff = millerAvg - marketAvg;
+                    const pct = ((diff / marketAvg) * 100).toFixed(0);
+                    const sign = diff > 0 ? '+' : '';
+                    // Higher price logic
+                    const isHigher = diff > 0;
+                    
+                    diffEl.innerHTML = `<span class="${isHigher ? 'text-rose-600' : 'text-emerald-600'} font-bold">${sign}${pct}%</span> vs avg`;
+                    diffEl.className = `inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full ${isHigher ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'}`;
+                }
+            });
+
+            // --- CHART: Location Analysis ---
+            const locationMeta = {
+                'Toronto': { label: 'Toronto', order: 1 },
+                'Mississauga': { label: 'Mississauga', order: 2 },
+                'Brampton': { label: 'Brampton', order: 3 },
+                'Markham': { label: 'Markham', order: 4 },
+                'Pickering': { label: 'Pickering', order: 5 },
+                'Niagara': { label: 'Niagara', order: 6 },
+                'Halifax': { label: 'Halifax', order: 7 },
+                'Truro': { label: 'Truro', order: 8 },
+                'Amherst': { label: 'Amherst', order: 9 },
+                'Milton': { label: 'Milton', order: 10 },
+                'Newmarket': { label: 'Newmarket', order: 11 },
+                'North York': { label: 'North York', order: 12 }
+            };
+
+            const uniqueLocs = [...new Set(data.map(d => d.location))];
+            
+            // Helper to get Miller price for a location and size
+            const getMillerPrice = (loc, sizeKey) => {
+                const miller = data.find(d => d.location === loc && d.business.includes('Miller'));
+                return miller ? miller[sizeKey] : null;
+            };
+
+            // Filter to only include locations where Miller Waste operates
+            // Check if Miller has at least one bin size available in that location
+            const locationsWithMiller = uniqueLocs.filter(loc => {
+                const hasMiller14 = getMillerPrice(loc, 'p14') !== null;
+                const hasMiller20 = getMillerPrice(loc, 'p20') !== null;
+                const hasMiller40 = getMillerPrice(loc, 'p40') !== null;
+                return hasMiller14 || hasMiller20 || hasMiller40;
+            });
+
+            const sortedLocations = locationsWithMiller.sort((a, b) => {
+                const orderA = locationMeta[a]?.order || 99;
+                const orderB = locationMeta[b]?.order || 99;
+                return orderA - orderB;
+            });
+
+            const locationChart = new Chart(document.getElementById('locationPriceChart'), {
+                type: 'bar',
+                data: {
+                    labels: sortedLocations.map(l => locationMeta[l]?.label || l),
+                    datasets: [
+                        // 14 Yard
+                        {
+                            label: '14yd (Market Avg)',
+                            data: sortedLocations.map(loc => calculateAverage(data.filter(d => d.location === loc), 'p14')),
+                            backgroundColor: '#94a3b8', // Slate 400 (Neutral)
+                            borderRadius: 4,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8,
+                            stack: '14'
+                        },
+                        {
+                            label: '14yd (Miller)',
+                            data: sortedLocations.map(loc => getMillerPrice(loc, 'p14')),
+                            backgroundColor: '#895431', // Miller Brown
+                            borderRadius: 4,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8,
+                            stack: '14-miller',
+                            // Visible by default
+                        },
+                        // 20 Yard
+                        {
+                            label: '20yd (Market Avg)',
+                            data: sortedLocations.map(loc => calculateAverage(data.filter(d => d.location === loc), 'p20')),
+                            backgroundColor: '#64748b', // Slate 500
+                            borderRadius: 4,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8,
+                            stack: '20',
+                            hidden: true
+                        },
+                        {
+                            label: '20yd (Miller)',
+                            data: sortedLocations.map(loc => getMillerPrice(loc, 'p20')),
+                            backgroundColor: '#6e4327', // Darker Miller Brown
+                            borderRadius: 4,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8,
+                            stack: '20-miller',
+                            hidden: true
+                        },
+                        // 40 Yard
+                        {
+                            label: '40yd (Market Avg)',
+                            data: sortedLocations.map(loc => calculateAverage(data.filter(d => d.location === loc), 'p40')),
+                            backgroundColor: '#475569', // Slate 600
+                            borderRadius: 4,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8,
+                            stack: '40',
+                            hidden: true
+                        },
+                        {
+                            label: '40yd (Miller)',
+                            data: sortedLocations.map(loc => getMillerPrice(loc, 'p40')),
+                            backgroundColor: '#3d2516', // Darkest Miller Brown
+                            borderRadius: 4,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8,
+                            stack: '40-miller',
+                            hidden: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { display: false }, // Hide default legend
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: { size: 13, weight: 600 },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [4, 4] }, ticks: { callback: v => '$' + v } },
+                        x: { grid: { display: false } }
+                    },
+                    // Store chart reference for print optimization
+                    onResize: function(chart) {
+                        // Ensure all datasets visible for print
+                        if (window.matchMedia && window.matchMedia('print').matches) {
+                            chart.data.datasets.forEach((dataset, index) => {
+                                chart.setDatasetVisibility(index, true);
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Custom Legend Logic with Checkboxes
+            const customLegendContainer = document.getElementById('locationPriceChartLegend');
+            const chartDatasets = locationChart.data.datasets;
+
+            chartDatasets.forEach((dataset, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center gap-2';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `legend-item-${index}`;
+                checkbox.checked = !dataset.hidden;
+                checkbox.className = 'w-4 h-4 text-brand-600 bg-white border-slate-300 rounded focus:ring-brand-500 cursor-pointer';
+                
+                const label = document.createElement('label');
+                label.htmlFor = `legend-item-${index}`;
+                label.className = 'text-sm text-slate-600 cursor-pointer select-none flex items-center gap-2';
+                
+                // Color indicator - make it larger and more visible
+                const colorBox = document.createElement('span');
+                colorBox.className = 'inline-block rounded-sm';
+                colorBox.style.width = '16px';
+                colorBox.style.height = '16px';
+                colorBox.style.backgroundColor = dataset.backgroundColor;
+                colorBox.style.border = '1px solid rgba(0, 0, 0, 0.1)';
+                colorBox.style.flexShrink = '0';
+                
+                label.appendChild(colorBox);
+                label.appendChild(document.createTextNode(dataset.label));
+
+                checkbox.addEventListener('change', (e) => {
+                    locationChart.setDatasetVisibility(index, e.target.checked);
+                    locationChart.update();
+                });
+
+                item.appendChild(checkbox);
+                item.appendChild(label);
+                customLegendContainer.appendChild(item);
+            });
+
+            // --- CHARTS: Deep Dives ---
+            
+            // --- CHARTS: Strategic Decision Support ---
+
+            // 1. Gap Analysis
+            const gapCtx = document.getElementById('gapAnalysisChart').getContext('2d');
+            const regionsForGap = ['Toronto', 'Mississauga', 'Brampton', 'Markham', 'Pickering', 'Niagara', 'Halifax'];
+            
+            const gapLabels = [];
+            const gapValues14 = [];
+            const gapValues20 = [];
+            
+            regionsForGap.forEach(reg => {
+                const regData = data.filter(d => d.location === reg);
+                const marketAvg14 = calculateAverage(regData, 'p14');
+                const miller14 = getMillerPrice(reg, 'p14');
+                
+                const marketAvg20 = calculateAverage(regData, 'p20');
+                const miller20 = getMillerPrice(reg, 'p20');
+                
+                if(miller14 && marketAvg14 > 0) {
+                    gapLabels.push(reg);
+                    gapValues14.push(miller14 - marketAvg14);
+                    // We assume if 14 exists, 20 likely exists or we skip
+                }
+            });
+
+            new Chart(gapCtx, {
+                type: 'bar',
+                data: {
+                    labels: gapLabels,
+                    datasets: [{
+                        label: 'Price Difference',
+                        data: gapValues14,
+                        backgroundColor: gapValues14.map(v => v > 0 ? '#e11d48' : '#10b981'), // Red if > 0, Green if < 0
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => {
+                                    return `${items[0].label} - 14 Yard Bin`;
+                                },
+                                label: (ctx) => {
+                                    const v = ctx.raw;
+                                    const region = ctx.label;
+                                    const regData = data.filter(d => d.location === region);
+                                    const marketAvg = calculateAverage(regData, 'p14');
+                                    const millerPrice = getMillerPrice(region, 'p14');
+                                    
+                                    if (v > 0) {
+                                        return [
+                                            `Miller Price: $${millerPrice}`,
+                                            `Market Average: $${marketAvg}`,
+                                            `Difference: +$${v.toFixed(0)} (Miller charges more)`
+                                        ];
+                                    } else {
+                                        return [
+                                            `Miller Price: $${millerPrice}`,
+                                            `Market Average: $${marketAvg}`,
+                                            `Difference: -$${Math.abs(v).toFixed(0)} (Miller is cheaper)`
+                                        ];
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            title: {
+                                display: true,
+                                text: 'Price Difference ($)',
+                                font: { size: 12, weight: 'bold' }
+                            },
+                            grid: { color: '#f1f5f9' },
+                            ticks: { 
+                                callback: v => (v > 0 ? '+' : '') + '$' + Math.abs(v).toFixed(0)
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Region',
+                                font: { size: 12, weight: 'bold' }
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // 2. Distribution Chart
+            const distCtx = document.getElementById('distributionChart').getContext('2d');
+            
+            // Prepare scatter data: x = price, y = arbitrary category index (0=14yd, 1=20yd, 2=40yd)
+            const distData = [];
+            
+            data.forEach(d => {
+                const isMiller = d.business.includes('Miller');
+                const color = isMiller ? '#e11d48' : '#94a3b8'; // Red for Miller, Slate for others
+                const radius = isMiller ? 8 : 5;
+                
+                if (d.p14) distData.push({ x: d.p14, y: 0, r: radius, bg: color, provider: d.business });
+                if (d.p20) distData.push({ x: d.p20, y: 1, r: radius, bg: color, provider: d.business });
+                if (d.p40) distData.push({ x: d.p40, y: 2, r: radius, bg: color, provider: d.business });
+            });
+
+            new Chart(distCtx, {
+                type: 'bubble',
+                data: {
+                    datasets: [{
+                        data: distData,
+                        backgroundColor: distData.map(d => d.bg),
+                        borderColor: 'transparent'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => {
+                                    const yValue = items[0].raw.y;
+                                    const binSize = yValue === 0 ? '14 Yard' : yValue === 1 ? '20 Yard' : '40 Yard';
+                                    return `${binSize} Bin`;
+                                },
+                                label: (ctx) => {
+                                    const provider = ctx.raw.provider;
+                                    const price = ctx.raw.x;
+                                    return `${provider}: $${price}`;
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                label1: { 
+                                    type: 'label', 
+                                    yValue: 0, 
+                                    content: '14 YARD BINS', 
+                                    xValue: 100, 
+                                    xAdjust: -60, 
+                                    color: '#1e293b', 
+                                    font: { weight: 'bold', size: 14 },
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                    borderColor: '#cbd5e1',
+                                    borderWidth: 1,
+                                    padding: 8,
+                                    textAlign: 'center'
+                                },
+                                label2: { 
+                                    type: 'label', 
+                                    yValue: 1, 
+                                    content: '20 YARD BINS', 
+                                    xValue: 100, 
+                                    xAdjust: -60, 
+                                    color: '#1e293b', 
+                                    font: { weight: 'bold', size: 14 },
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                    borderColor: '#cbd5e1',
+                                    borderWidth: 1,
+                                    padding: 8,
+                                    textAlign: 'center'
+                                },
+                                label3: { 
+                                    type: 'label', 
+                                    yValue: 2, 
+                                    content: '40 YARD BINS', 
+                                    xValue: 100, 
+                                    xAdjust: -60, 
+                                    color: '#1e293b', 
+                                    font: { weight: 'bold', size: 14 },
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                    borderColor: '#cbd5e1',
+                                    borderWidth: 1,
+                                    padding: 8,
+                                    textAlign: 'center'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Bin Size',
+                                font: { size: 14, weight: 'bold' },
+                                color: '#1e293b',
+                                padding: { top: 0, bottom: 15 }
+                            },
+                            min: -0.5,
+                            max: 2.5,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    if (value === 0) return '14 Yard Bins';
+                                    if (value === 1) return '20 Yard Bins';
+                                    if (value === 2) return '40 Yard Bins';
+                                    return '';
+                                },
+                                font: { size: 16, weight: 'bold' },
+                                color: '#1e293b',
+                                padding: 20
+                            },
+                            grid: {
+                                display: true,
+                                color: '#f1f5f9',
+                                drawBorder: false,
+                                lineWidth: 1
+                            }
+                        },
+                        x: {
+                            title: { 
+                                display: true, 
+                                text: 'Base Price ($)',
+                                font: { size: 12, weight: 'bold' }
+                            },
+                            min: 100,
+                            max: 1500,
+                            grid: { 
+                                display: true,
+                                color: '#f1f5f9'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- CHART: Most Popular Pricing Model by Region ---
+            const pricingModelCtx = document.getElementById('pricingModelChart').getContext('2d');
+            
+            // Calculate most popular pricing model per region
+            const regionModelCounts = {};
+            const regions = [...new Set(data.map(d => d.location))].sort();
+            
+            regions.forEach(region => {
+                const regionData = data.filter(d => d.location === region);
+                const modelCounts = {};
+                
+                regionData.forEach(item => {
+                    const model = item.pricingModel || 'Unknown';
+                    modelCounts[model] = (modelCounts[model] || 0) + 1;
+                });
+                
+                // Find the most popular model
+                let mostPopular = '';
+                let maxCount = 0;
+                Object.keys(modelCounts).forEach(model => {
+                    if (modelCounts[model] > maxCount) {
+                        maxCount = modelCounts[model];
+                        mostPopular = model;
+                    }
+                });
+                
+                regionModelCounts[region] = {
+                    model: mostPopular,
+                    count: maxCount,
+                    total: regionData.length
+                };
+            });
+            
+            // Prepare chart data
+            const pricingModelLabels = [];
+            const pricingModelData = [];
+            const pricingModelColors = [];
+            
+            // Color mapping for different pricing models
+            const modelColors = {
+                'Tonnage Cap': '#10b981',      // Emerald
+                'Flat Rate': '#3b82f6',         // Blue
+                'Commercial / Quote': '#8b5cf6', // Purple
+                'Haul + Tipping': '#f59e0b',    // Amber
+                'Haul + Delivery': '#ef4444',   // Red
+                'Rental + Disposal': '#06b6d4', // Cyan
+                'Premium Service': '#ec4899',    // Pink
+                'All-Inclusive': '#14b8a6',      // Teal
+                'Time-Based': '#6366f1',         // Indigo
+                'Zone Pricing': '#f97316',      // Orange
+                'Loss Leader / Overage': '#84cc16', // Lime
+                'High Volume Value': '#a855f7', // Violet
+                'Cost-Plus': '#22c55e',         // Green
+                'Call for Quote': '#64748b',     // Slate
+                'Daily/Weekly': '#06b6d4',      // Cyan
+                'Commercial': '#475569',        // Slate 600
+                'Transparent Pricing': '#0ea5e9', // Sky
+                'Unknown': '#94a3b8'            // Slate 400
+            };
+            
+            // Sort regions by order (same as locationMeta)
+            const sortedRegions = regions.sort((a, b) => {
+                const orderA = locationMeta[a]?.order || 99;
+                const orderB = locationMeta[b]?.order || 99;
+                return orderA - orderB;
+            });
+            
+            sortedRegions.forEach(region => {
+                if (regionModelCounts[region]) {
+                    const info = regionModelCounts[region];
+                    pricingModelLabels.push(region);
+                    pricingModelData.push(info.count);
+                    pricingModelColors.push(modelColors[info.model] || '#94a3b8');
+                }
+            });
+            
+            new Chart(pricingModelCtx, {
+                type: 'bar',
+                data: {
+                    labels: pricingModelLabels,
+                    datasets: [{
+                        label: 'Number of Companies',
+                        data: pricingModelData,
+                        backgroundColor: pricingModelColors,
+                        borderRadius: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const region = ctx.label;
+                                    const info = regionModelCounts[region];
+                                    return `${info.model}: ${info.count} of ${info.total} companies`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { 
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return value;
+                                }
+                            }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // --- CHART: Value Matrix ---
+            const matrixCtx = document.getElementById('valueMatrixChart').getContext('2d');
+            
+            // Prepare Data for Matrix
+            const matrixData = [];
+            databaseData.providers.forEach(p => {
+                // Focus on 14yd for comparison
+                const p14Data = p.pricing?.['14yd'];
+                // Handle different pricing structures
+                let basePrice = null;
+                if (p14Data?.basePrice) {
+                    basePrice = p14Data.basePrice;
+                } else if (p14Data?.['7day']?.price) {
+                    // Handle RedBins time-based pricing (use 7day as standard)
+                    basePrice = p14Data['7day'].price;
+                } else if (p14Data?.['3day']?.price) {
+                    // Fallback to 3day if 7day not available
+                    basePrice = p14Data['3day'].price;
+                }
+                if (!basePrice) return;
+
+                let weight = 0;
+                // Handle weight extraction - check nested structures first
+                let weightRaw = p14Data.includedWeight;
+                if (!weightRaw && p14Data?.['7day']?.includedWeight) {
+                    weightRaw = p14Data['7day'].includedWeight;
+                } else if (!weightRaw && p14Data?.['3day']?.includedWeight) {
+                    weightRaw = p14Data['3day'].includedWeight;
+                }
+                
+                if (typeof weightRaw === 'number') {
+                    weight = weightRaw;
+                } else if (typeof weightRaw === 'string') {
+                    if (weightRaw.toLowerCase().includes('flat')) weight = 4.5; // Visual cap for Flat Rate
+                    else if (weightRaw.toLowerCase().includes('variable')) return; // Skip variable
+                    else {
+                        const match = weightRaw.match(/(\d+(\.\d+)?)/);
+                        if (match) weight = parseFloat(match[0]);
+                    }
+                } else {
+                    return; // No weight data
+                }
+
+                // Fees for tooltip
+                let feesText = "";
+                if (p.overageFee) feesText += `Overage: $${p.overageFee}/t`;
+                
+                // Determine Color based on Quadrant (roughly)
+                // Avg Price ~380, Avg Weight ~1.5
+                const isHighValue = basePrice < 400 && weight > 1.5;
+                const color = isHighValue ? '#10b981' : (p.name.includes('Miller') ? '#895431' : '#64748b');
+
+                matrixData.push({
+                    x: basePrice,
+                    y: weight,
+                    r: 8, // Bubble radius
+                    provider: p.name,
+                    region: p.region,
+                    fees: feesText,
+                    rawWeight: weightRaw
+                });
+            });
+
+            new Chart(matrixCtx, {
+                type: 'bubble',
+                data: {
+                    datasets: [{
+                        label: 'Providers',
+                        data: matrixData,
+                        backgroundColor: matrixData.map(d => d.provider.includes('Miller') ? '#895431' : (d.y > 1.8 && d.x < 420 ? '#10b981' : '#94a3b8')), // Green for high value
+                        borderColor: '#fff',
+                        borderWidth: 1,
+                        hoverBackgroundColor: '#0f172a',
+                        hoverRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            callbacks: {
+                                label: (ctx) => {
+                                    const d = ctx.raw;
+                                    return `${d.provider} (${d.region}): $${d.x} / ${d.rawWeight === 4.5 ? 'Flat Rate' : d.y + ' tons'}`;
+                                },
+                                afterLabel: (ctx) => {
+                                    return ctx.raw.fees ? ctx.raw.fees : '';
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    yMin: 0,
+                                    yMax: 5,
+                                    xMin: 400,
+                                    xMax: 400,
+                                    borderColor: 'rgba(0,0,0,0.1)',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6]
+                                },
+                                line2: {
+                                    type: 'line',
+                                    xMin: 100,
+                                    xMax: 1500,
+                                    yMin: 1.75,
+                                    yMax: 1.75,
+                                    borderColor: 'rgba(0,0,0,0.1)',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6]
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Base Price ($)' },
+                            grid: { display: false },
+                            min: 100,
+                            max: 1500
+                        },
+                        y: {
+                            title: { display: true, text: 'Included Weight (Tons)' },
+                            grid: { color: '#f1f5f9' },
+                            min: -0.5,
+                            max: 5.5,
+                            ticks: {
+                                callback: (v) => v === 4.5 ? 'Flat Rate' : (v >= 0 ? v + 't' : '')
+                            }
+                        }
+                    }
+                }
+            });
+
+            const torontoData = data.filter(d => d.location === 'Toronto');
+            createBarChart('torontoPriceChart', torontoData);
+
+            const peelData = data.filter(d => d.location === 'Mississauga' || d.location === 'Brampton');
+            createBarChart('peelPriceChart', peelData);
+
+            const markhamData = data.filter(d => d.location === 'Markham');
+            createBarChart('markhamPriceChart', markhamData);
+
+            const pickeringData = data.filter(d => d.location === 'Pickering');
+            createBarChart('pickeringPriceChart', pickeringData);
+
+            const niagaraData = data.filter(d => d.location === 'Niagara');
+            createBarChart('niagaraPriceChart', niagaraData);
+
+            const atlanticData = data.filter(d => d.location === 'Halifax' || d.location === 'Truro' || d.location === 'Amherst');
+            createBarChart('atlanticPriceChart', atlanticData);
+
+
+            // --- CONTRIBUTORS LIST LOGIC ---
+            const contributorsList = document.getElementById('contributorsList');
+            // Get unique companies excluding Miller
+            const companies = [...new Set(data.filter(d => !d.business.includes('Miller')).map(d => d.business))].sort();
+            
+            if (contributorsList) {
+                companies.forEach(company => {
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center justify-between py-2 border-b border-slate-100 last:border-0 text-sm';
+                    
+                    // Find the location(s) this company operates in
+                    const locs = [...new Set(data.filter(d => d.business === company).map(d => d.location))].sort();
+                    
+                    item.innerHTML = `
+                        <span class="font-medium text-slate-700 truncate pr-2">${company}</span>
+                        <span class="text-xs text-slate-400 shrink-0">${locs.length > 2 ? locs.length + ' Regions' : locs.join(', ')}</span>
+                    `;
+                    contributorsList.appendChild(item);
+                });
+            }
+
+            // --- CHARTS: Donuts --- (Removed as requested, keeping function if needed later or just remove calls)
+            // const createDonut = ... (Removed section)
+            
+            // --- CHART: Popular Pricing Models (Donut Chart) ---
+            const pricingModelCounts = {};
+            data.forEach(p => {
+                const model = p.pricingModel;
+                if (model && model !== 'Commercial / Quote' && model !== 'Call for Quote') {
+                    pricingModelCounts[model] = (pricingModelCounts[model] || 0) + 1;
+                }
+            });
+
+            // Only render if element exists
+            // (Removed in previous step or specific section in HTML, but logic can stay if elements are removed)
+
+            // --- FILTER SETUP ---
+            const filterRegion = document.getElementById('filter-region');
+            const filterMaterial = document.getElementById('filter-material');
+            const filterPricingModel = document.getElementById('filter-pricing-model');
+            const clearFiltersBtn = document.getElementById('clear-filters');
+            
+            // Populate region filter
+            const uniqueRegions = [...new Set(data.map(d => d.location))].sort();
+            uniqueRegions.forEach(region => {
+                const option = document.createElement('option');
+                option.value = region;
+                option.textContent = region;
+                filterRegion.appendChild(option);
+            });
+
+            // Populate material filter dynamically based on available materials
+            const materialMap = {
+                mixedWaste: 'Mixed Waste',
+                mixedGarbage: 'Mixed Garbage',
+                concreteOnly: 'Concrete Only',
+                concrete: 'Concrete'
+            };
+            
+            const availableMaterials = new Set();
+            data.forEach(item => {
+                if (item.p14Materials) {
+                    Object.keys(item.p14Materials).forEach(key => availableMaterials.add(key));
+                }
+            });
+            
+            // Keep "Mixed Waste" always, add others if available
+            Array.from(availableMaterials).sort().forEach(key => {
+                if (key !== 'mixedWaste' && materialMap[key]) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = materialMap[key];
+                    filterMaterial.appendChild(option);
+                }
+            });
+
+            // Store full dataset
+            let filteredData = [...data];
+
+            function renderTable() {
+                const tableBody = document.getElementById('data-table-body');
+                tableBody.innerHTML = '';
+                const materialFilter = filterMaterial.value;
+                
+                const materialLabels = {
+                    mixedGarbage: 'Mixed Garbage',
+                    concreteOnly: 'Concrete',
+                    concrete: 'Concrete'
+                };
+                
+                filteredData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors group';
+                    tr.dataset.region = item.location;
+                    tr.dataset.pricingModel = item.pricingModel || '';
+                    tr.dataset.hasMaterials = item.p14Materials ? 'true' : 'false';
+                    
+                    const fmt = (v) => v ? `<span class="font-medium text-slate-900">$${v}</span>` : '<span class="text-slate-300">-</span>';
+                    
+                    // Format 14yd with material types if available - Clean Layout
+                    let p14Display = fmt(item.p14);
+                    if (item.p14Materials) {
+                        if (materialFilter && materialFilter !== 'mixedWaste' && item.p14Materials[materialFilter]) {
+                            // Highlight ONLY selected material type
+                            p14Display = `<div><span class="font-bold text-brand-600 text-base">$${item.p14Materials[materialFilter]}</span><div class="text-[10px] uppercase tracking-wider text-slate-400 mt-0.5">${materialLabels[materialFilter] || materialFilter}</div></div>`;
+                        } else {
+                            // Show summary with popover or accordion style for full details
+                            const count = Object.keys(item.p14Materials).length;
+                            // Create a clean summary view - only showing Base (Mixed) price, with an indicator for more
+                            p14Display = `
+                                <div class="relative group cursor-help inline-block">
+                                    <div class="flex items-center gap-2 whitespace-nowrap">
+                                        <span class="font-medium text-slate-900">${fmt(item.p14)}</span>
+                                        <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full border border-slate-200">+${count} mats</span>
+                                    </div>
+                                    
+                                    <!-- Tooltip/Dropdown on hover -->
+                                    <div class="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 p-3 z-20 hidden group-hover:block">
+                                        <div class="text-xs font-semibold text-slate-700 mb-2 border-b border-slate-100 pb-1">Material Pricing</div>
+                                        <div class="space-y-1.5">
+                                            <div class="flex justify-between text-xs">
+                                                <span class="text-slate-500">Mixed Waste</span>
+                                                <span class="font-medium text-slate-700">${fmt(item.p14)}</span>
+                                            </div>
+                                            ${Object.entries(item.p14Materials).map(([key, price]) => `
+                                                <div class="flex justify-between text-xs">
+                                                    <span class="text-slate-500">${materialLabels[key] || key}</span>
+                                                    <span class="font-medium text-slate-700">$${price}</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    // Format notes - Allow full text display
+                    const notesDisplay = item.notes ? `<span class="text-xs text-slate-500 block min-w-[200px]">${item.notes}</span>` : '<span class="text-slate-300">-</span>';
+                    
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-900 align-top">${item.location}</td>
+                        <td class="px-6 py-4 text-slate-600 align-top">${item.business}</td>
+                        <td class="px-6 py-4 align-top">${p14Display}</td>
+                        <td class="px-6 py-4 align-top">${fmt(item.p20)}</td>
+                        <td class="px-6 py-4 align-top">${fmt(item.p40)}</td>
+                        <td class="px-6 py-4 text-xs align-top">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium ${
+                                item.fees.includes('Included') ? 'bg-emerald-100 text-emerald-800' : 
+                                item.fees.includes('overage') ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'
+                            }">
+                                ${item.fees.split(',')[0]}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-xs align-top">${notesDisplay}</td>
+                        <td class="px-6 py-4 text-xs text-slate-400 align-top">
+                            ${item.sourceUrl ? `<a href="${item.sourceUrl}" target="_blank" class="text-brand-600 hover:text-brand-800 hover:underline flex items-center gap-1">View Listing <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>` : 'Database'}
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            function applyFilters() {
+                const regionFilter = filterRegion.value;
+                const materialFilter = filterMaterial.value;
+                const pricingModelFilter = filterPricingModel.value;
+                
+                filteredData = data.filter(item => {
+                    let match = true;
+                    
+                    if (regionFilter && item.location !== regionFilter) match = false;
+                    if (pricingModelFilter && item.pricingModel !== pricingModelFilter) match = false;
+                    
+                    if (materialFilter) {
+                        if (materialFilter === 'mixedWaste') {
+                            // Show all (mixed waste is base price)
+                            match = match && true;
+                        } else if (item.p14Materials && item.p14Materials[materialFilter]) {
+                            // Has this material type
+                            match = match && true;
+                        } else {
+                            // Doesn't have this material type
+                            match = false;
+                        }
+                    }
+                    
+                    return match;
+                });
+                
+                renderTable();
+            }
+
+            filterRegion.addEventListener('change', applyFilters);
+            filterMaterial.addEventListener('change', applyFilters);
+            filterPricingModel.addEventListener('change', applyFilters);
+            clearFiltersBtn.addEventListener('click', () => {
+                filterRegion.value = '';
+                filterMaterial.value = '';
+                filterPricingModel.value = '';
+                filteredData = [...data];
+                renderTable();
+            });
+
+            // Initial render
+            renderTable();
+
+            // Print optimization function - make it globally accessible
+            window.prepareForPrint = function() {
+                try {
+                    // Store all chart instances if they exist globally
+                    const chartInstances = [];
+                    
+                    // Find all canvas elements and ensure their charts are rendered
+                    const canvasElements = document.querySelectorAll('canvas');
+                    
+                    if (typeof Chart !== 'undefined' && Chart.getChart) {
+                        canvasElements.forEach(canvas => {
+                            try {
+                                // Get Chart.js instance from canvas
+                                const chart = Chart.getChart(canvas);
+                                if (chart) {
+                                    chartInstances.push(chart);
+                                    
+                                    // Special handling for Regional Price Analysis chart
+                                    if (canvas.id === 'locationPriceChart') {
+                                        // Show all datasets for print
+                                        chart.data.datasets.forEach((dataset, index) => {
+                                            chart.setDatasetVisibility(index, true);
+                                        });
+                                    }
+                                    
+                                    // Force chart to resize and render
+                                    chart.resize();
+                                    chart.update('none'); // Update without animation
+                                }
+                            } catch (e) {
+                                console.warn('Error updating chart:', e);
+                            }
+                        });
+                    }
+
+                    // Wait a moment for charts to render, then print
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
+                } catch (error) {
+                    console.error('Error preparing for print:', error);
+                    // Fallback to direct print if something goes wrong
+                    window.print();
+                }
+            };
+
+            // Attach print button event listener as backup (onclick should work, but this ensures it)
+            const exportButton = document.getElementById('export-report-btn');
+            if (exportButton) {
+                exportButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (window.prepareForPrint) {
+                        window.prepareForPrint();
+                    } else {
+                        window.print();
+                    }
+                });
+            }
+
+            // Also handle browser print dialog (Ctrl/Cmd+P)
+            window.addEventListener('beforeprint', () => {
+                // Force all charts to render
+                const canvasElements = document.querySelectorAll('canvas');
+                canvasElements.forEach(canvas => {
+                    try {
+                        const chart = Chart.getChart(canvas);
+                        if (chart) {
+                            // Special handling for Regional Price Analysis chart
+                            if (canvas.id === 'locationPriceChart') {
+                                // Show all datasets for print
+                                chart.data.datasets.forEach((dataset, index) => {
+                                    chart.setDatasetVisibility(index, true);
+                                });
+                            }
+                            chart.resize();
+                            chart.update('none');
+                        }
+                    } catch (e) {
+                        console.warn('Error updating chart for print:', e);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
