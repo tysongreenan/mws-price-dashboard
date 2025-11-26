@@ -1,19 +1,8 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "price.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/",
-      "dest": "/price.html"
-    },
-    {
-      "src": "/price.html",
-      "dest": "/price.html"
+      "source": "/",
+      "destination": "/price.html"
     }
   ],
   "headers": [
